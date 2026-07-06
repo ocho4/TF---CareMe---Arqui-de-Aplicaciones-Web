@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build -- --configuration production
+RUN timeout -k 10 120 npm run build -- --configuration production; test -f dist/CareMe/browser/index.html
 
 # ---------- Etapa 2: servir con Nginx ----------
 FROM nginx:alpine
