@@ -1,0 +1,143 @@
+<div class="medicacion-wrapper">
+
+  <div class="titulo-seccion">
+    <mat-icon>medication</mat-icon>
+    <div>
+      <h2>Recordatorios de Medicación</h2>
+      <p>Programa y registra las dosis de medicamentos del paciente</p>
+    </div>
+  </div>
+
+  <div class="layout-dos-columnas">
+
+    <!-- ── FORMULARIO ── -->
+    <mat-card class="card-form">
+      <mat-card-header>
+        <mat-card-title><mat-icon>add_alarm</mat-icon> Programar nueva dosis</mat-card-title>
+      </mat-card-header>
+      <mat-divider />
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="programar()">
+
+          <mat-form-field appearance="outline" class="campo-completo">
+            <mat-label>Paciente</mat-label>
+            <mat-icon matPrefix>elderly</mat-icon>
+            <mat-select formControlName="idPaciente" (selectionChange)="cargarRecordatorios()">
+              @for (p of pacientes; track p.idPaciente) {
+                <mat-option [value]="p.idPaciente">
+                  {{ p.usuario?.nombres }} {{ p.usuario?.apellidos }}
+                </mat-option>
+              }
+            </mat-select>
+            @if (form.get('idPaciente')?.hasError('required') && form.get('idPaciente')?.touched) {
+              <mat-error>Selecciona un paciente</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-completo">
+            <mat-label>Nombre del medicamento</mat-label>
+            <mat-icon matPrefix>medication</mat-icon>
+            <input matInput formControlName="nombreMedicamento" placeholder="Ej: Metformina 500mg" />
+            @if (form.get('nombreMedicamento')?.hasError('required') && form.get('nombreMedicamento')?.touched) {
+              <mat-error>Campo requerido</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-completo">
+            <mat-label>Fecha de la dosis</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fecha" />
+            <mat-datepicker-toggle matSuffix [for]="picker" />
+            <mat-datepicker #picker />
+            @if (form.get('fecha')?.hasError('required') && form.get('fecha')?.touched) {
+              <mat-error>Requerido</mat-error>
+            }
+          </mat-form-field>
+
+          <p class="etiqueta-hora">Hora de administración</p>
+          <div class="grupo-hora">
+            <mat-form-field appearance="outline" class="campo-h">
+              <mat-label>Hora</mat-label>
+              <mat-select formControlName="horaH">
+                @for (h of horas; track h) {
+                  <mat-option [value]="h">{{ h }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <span class="sep">:</span>
+
+            <mat-form-field appearance="outline" class="campo-m">
+              <mat-label>Min</mat-label>
+              <mat-select formControlName="horaM">
+                @for (m of minutos; track m) {
+                  <mat-option [value]="m">{{ pad(m) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo-p">
+              <mat-select formControlName="horaP">
+                @for (p of periodos; track p) {
+                  <mat-option [value]="p">{{ p }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <button mat-raised-button color="primary" type="submit" class="btn-guardar" [disabled]="guardando">
+            <mat-icon>{{ guardando ? 'hourglass_top' : 'alarm_add' }}</mat-icon>
+            {{ guardando ? 'Guardando...' : 'Programar recordatorio' }}
+          </button>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── LISTA DE PENDIENTES ── -->
+    <div class="panel-recordatorios">
+      <h3 class="subtitulo-lista">
+        <mat-icon>pending_actions</mat-icon>
+        Dosis pendientes
+      </h3>
+
+      @if (cargandoRecordatorios) {
+        <div class="estado-centro">
+          <mat-icon>hourglass_top</mat-icon><p>Cargando...</p>
+        </div>
+      } @else if (!form.get('idPaciente')?.value) {
+        <div class="estado-centro">
+          <mat-icon>person_search</mat-icon>
+          <p>Selecciona un paciente para ver sus recordatorios pendientes.</p>
+        </div>
+      } @else if (recordatorios.length === 0) {
+        <div class="estado-centro">
+          <mat-icon>check_circle</mat-icon>
+          <p>No hay dosis pendientes para este paciente.</p>
+        </div>
+      } @else {
+        @for (r of recordatorios; track r.idRecordatorio) {
+          <mat-card class="card-recordatorio">
+            <mat-card-content>
+              <div class="rec-info">
+                <div class="rec-medicamento">
+                  <mat-icon>medication</mat-icon>
+                  <strong>{{ r.nombreMedicamento }}</strong>
+                </div>
+                <div class="rec-hora">
+                  <mat-icon>schedule</mat-icon>
+                  {{ r.horaProgramada | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="marcarTomado(r.idRecordatorio!)">
+                <mat-icon>check</mat-icon> Marcar como tomada
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      }
+    </div>
+
+  </div>
+</div>

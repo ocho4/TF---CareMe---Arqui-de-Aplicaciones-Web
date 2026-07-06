@@ -1,0 +1,172 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <button mat-button class="btn-volver" (click)="volver()">
+      <mat-icon>arrow_back</mat-icon> Volver a Mis Servicios
+    </button>
+
+    @if (cargando) {
+      <div class="hero-cargando">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else if (!servicio) {
+      <div class="hero-cargando">
+        <mat-icon class="ic-error">error_outline</mat-icon>
+        <p>Servicio no encontrado.</p>
+      </div>
+    } @else {
+      <div class="hero-meta">
+        <span class="hero-badge">
+          <mat-icon>checklist</mat-icon>
+          Seguimiento de tareas
+        </span>
+        <h1 class="hero-titulo">Servicio #{{ servicio.idServicio }}</h1>
+
+        <div class="hero-chips">
+          <span class="chip chip-cuidador">
+            <mat-icon>medical_services</mat-icon>
+            {{ nombreCuidador() }}
+          </span>
+          <span class="chip chip-paciente">
+            <mat-icon>elderly</mat-icon>
+            {{ nombrePaciente() }}
+          </span>
+          <span class="chip chip-estado" [class.chip-confirmado]="servicio.estado === 'CONFIRMADO'"
+                                         [class.chip-finalizado]="servicio.estado === 'FINALIZADO'">
+            <mat-icon>circle</mat-icon>
+            {{ servicio.estado }}
+          </span>
+        </div>
+
+        <p class="hero-desc">
+          @if (esFamiliar) {
+            Añade instrucciones para el cuidador y comprueba en tiempo real qué tareas ha realizado.
+          } @else {
+            Revisa las instrucciones del familiar y marca cada tarea conforme la realices.
+          }
+        </p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+@if (!cargando && servicio) {
+  <main class="contenido">
+
+    <!-- Añadir tarea (solo familiar) -->
+    @if (esFamiliar) {
+      <div class="seccion-anadir">
+        <h2 class="seccion-titulo">
+          <mat-icon>add_task</mat-icon>
+          Nueva instrucción
+        </h2>
+        <div class="anadir-row">
+          <mat-form-field appearance="outline" class="input-desc">
+            <mat-label>Describe la tarea</mat-label>
+            <mat-icon matPrefix>task_alt</mat-icon>
+            <input matInput [(ngModel)]="nuevaDescripcion"
+                   placeholder="Ej: Paseo en el parque a las 10:00 am"
+                   (keyup.enter)="agregarTarea()" />
+          </mat-form-field>
+          <button mat-raised-button class="btn-anadir"
+                  [disabled]="!nuevaDescripcion.trim()"
+                  (click)="agregarTarea()">
+            <mat-icon>add</mat-icon> Añadir
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Panel de tareas -->
+    <div class="panel-tareas">
+      <div class="panel-header">
+        <h2 class="seccion-titulo">
+          <mat-icon>list_alt</mat-icon>
+          Tareas del servicio
+        </h2>
+        <div class="contadores">
+          <span class="contador contador-pendiente">
+            <mat-icon>pending</mat-icon>
+            {{ pendientes.length }} pendiente{{ pendientes.length !== 1 ? 's' : '' }}
+          </span>
+          <span class="contador contador-completada">
+            <mat-icon>check_circle</mat-icon>
+            {{ completadas.length }} completada{{ completadas.length !== 1 ? 's' : '' }}
+          </span>
+          <span class="poll-badge">
+            <mat-icon>sync</mat-icon> Actualización cada 30 s
+          </span>
+        </div>
+      </div>
+
+      @if (cargandoTareas && tareas.length === 0) {
+        <div class="estado-centro">
+          <mat-spinner diameter="36" />
+          <span>Cargando tareas...</span>
+        </div>
+      } @else if (tareas.length === 0) {
+        <div class="estado-vacio">
+          <mat-icon>inbox</mat-icon>
+          <p>
+            @if (esFamiliar) {
+              Todavía no has añadido ninguna instrucción para este servicio.
+            } @else {
+              El familiar aún no ha añadido instrucciones para este servicio.
+            }
+          </p>
+        </div>
+      } @else {
+
+        <!-- Pendientes -->
+        @if (pendientes.length > 0) {
+          <p class="grupo-label grupo-pendiente">
+            <mat-icon>pending</mat-icon> Pendientes
+          </p>
+          @for (t of pendientes; track t.idTarea) {
+            <div class="tarea-fila tarea-pendiente">
+              <mat-checkbox [checked]="false" [disabled]="esFamiliar"
+                            (change)="toggleTarea(t)" color="primary" class="check" />
+              <span class="descripcion">{{ t.descripcion }}</span>
+              @if (esFamiliar) {
+                <button mat-icon-button class="btn-delete"
+                        (click)="eliminarTarea(t.idTarea!)"
+                        matTooltip="Eliminar">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        }
+
+        <!-- Completadas -->
+        @if (completadas.length > 0) {
+          <mat-divider class="divider" />
+          <p class="grupo-label grupo-completada">
+            <mat-icon>check_circle</mat-icon> Completadas
+          </p>
+          @for (t of completadas; track t.idTarea) {
+            <div class="tarea-fila tarea-completada">
+              <mat-checkbox [checked]="true" [disabled]="esFamiliar"
+                            (change)="toggleTarea(t)" color="primary" class="check" />
+              <span class="descripcion tachada">{{ t.descripcion }}</span>
+              <span class="hora-completado">
+                <mat-icon>schedule</mat-icon>
+                {{ t.horaCompletado | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+              @if (esFamiliar) {
+                <button mat-icon-button class="btn-delete"
+                        (click)="eliminarTarea(t.idTarea!)"
+                        matTooltip="Eliminar">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        }
+
+      }
+    </div>
+
+  </main>
+}

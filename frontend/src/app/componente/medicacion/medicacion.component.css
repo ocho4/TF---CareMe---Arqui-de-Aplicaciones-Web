@@ -1,0 +1,129 @@
+.medicacion-wrapper {
+  padding: 28px 124px 56px;
+}
+
+.titulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.titulo-seccion mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #1976d2;
+}
+
+.titulo-seccion h2 { margin: 0; font-size: 20px; }
+.titulo-seccion p  { margin: 2px 0 0; font-size: 13px; color: #666; }
+
+.layout-dos-columnas {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Formulario */
+.card-form mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.campo-completo {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.etiqueta-hora {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0 2px;
+}
+
+.grupo-hora {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.campo-h { width: 70px; }
+.campo-m { width: 70px; }
+.campo-p { width: 74px; }
+
+.sep {
+  font-size: 20px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.btn-guardar {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* Lista */
+.subtitulo-lista {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #333;
+}
+
+.estado-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  color: #aaa;
+  gap: 8px;
+  text-align: center;
+}
+
+.estado-centro mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.card-recordatorio {
+  margin-bottom: 12px;
+  border-left: 4px solid #1976d2;
+}
+
+.rec-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rec-medicamento,
+.rec-hora {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.rec-medicamento mat-icon,
+.rec-hora mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #666;
+}
+
+@media (max-width: 700px) {
+  .layout-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+}

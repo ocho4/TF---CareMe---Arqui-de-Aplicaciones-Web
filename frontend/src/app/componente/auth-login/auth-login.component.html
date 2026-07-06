@@ -1,0 +1,151 @@
+<div class="page-split">
+
+  <div class="panel-form">
+    <div class="form-inner">
+
+      <div class="branding">
+        <img src="https://webdesignfyp.com/wp-content/uploads/2026/06/Documento.png"
+             alt="CareMe" class="logo" />
+        <h1 class="titulo">Bienvenido de vuelta</h1>
+        <p class="subtitulo">Ingresa tus credenciales para acceder a tu cuenta</p>
+      </div>
+
+      @if (!estadoCuidador) {
+        <form [formGroup]="form" (ngSubmit)="iniciarSesion()">
+
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Correo electrónico</mat-label>
+            <mat-icon matPrefix class="field-icon">email</mat-icon>
+            <input matInput type="email" formControlName="email"
+                   placeholder="correo@ejemplo.com" />
+            @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+              <mat-error>El correo es obligatorio</mat-error>
+            }
+            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+              <mat-error>Ingresa un correo válido</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>Contraseña</mat-label>
+            <mat-icon matPrefix class="field-icon">lock</mat-icon>
+            <input matInput [type]="ocultarPassword ? 'password' : 'text'"
+                   formControlName="password" placeholder="Tu contraseña" />
+            <button mat-icon-button matSuffix type="button"
+                    (click)="ocultarPassword = !ocultarPassword">
+              <mat-icon>{{ ocultarPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+              <mat-error>La contraseña es obligatoria</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="recuperar">
+            <a routerLink="/recuperar-password" class="link-accion">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="btn-login" [disabled]="cargando">
+            <mat-icon class="btn-icon">{{ cargando ? 'hourglass_top' : 'login' }}</mat-icon>
+            {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+          </button>
+
+        </form>
+
+        <p class="footer-texto">
+          ¿Aún no tienes cuenta?
+          <a routerLink="/registro" class="link-accion">Registrarse</a>
+        </p>
+      }
+
+      @if (estadoCuidador === 'pendiente') {
+        <div class="estado-panel estado-pendiente">
+          <mat-icon class="estado-icono">hourglass_top</mat-icon>
+          <h2 class="estado-titulo">Cuenta en revisión</h2>
+          <p class="estado-desc">
+            Tu solicitud está siendo evaluada por el equipo CareMe.<br>
+            No podrás ingresar hasta que sea aprobada.
+          </p>
+          <div class="pasos">
+            <div class="paso paso-ok">
+              <mat-icon>check_circle</mat-icon>
+              <span>Registro completado</span>
+            </div>
+            <div class="paso paso-activo">
+              <mat-icon>pending</mat-icon>
+              <span>Revisión por el equipo CareMe</span>
+            </div>
+            <div class="paso paso-pendiente">
+              <mat-icon>radio_button_unchecked</mat-icon>
+              <span>Cuenta activada</span>
+            </div>
+          </div>
+          <button class="btn-volver" (click)="estadoCuidador = null">
+            <mat-icon class="btn-icon">arrow_back</mat-icon>
+            Volver al inicio de sesión
+          </button>
+        </div>
+      }
+
+
+      @if (estadoCuidador === 'rechazado') {
+        <div class="estado-panel estado-rechazado">
+          <mat-icon class="estado-icono icono-rojo">cancel</mat-icon>
+          <h2 class="estado-titulo">Solicitud rechazada</h2>
+          <p class="estado-desc">
+            Tu solicitud como cuidador no fue aprobada en esta ocasión.
+          </p>
+
+          @if (observacionesRechazo) {
+            <div class="motivo-rechazo">
+              <p class="motivo-label">Motivo indicado por el equipo CareMe:</p>
+              <p class="motivo-texto">{{ observacionesRechazo }}</p>
+            </div>
+          }
+
+          @if (!mostrarFormRepostular) {
+            <p class="estado-desc-2">
+              Puedes enviar una nueva solicitud con información adicional que respalde tu perfil.
+            </p>
+            <button class="btn-login btn-repostular" (click)="abrirFormRepostular()">
+              <mat-icon class="btn-icon">refresh</mat-icon>
+              Solicitar nueva revisión
+            </button>
+            <button class="btn-volver" (click)="estadoCuidador = null">
+              <mat-icon class="btn-icon">arrow_back</mat-icon>
+              Volver al inicio de sesión
+            </button>
+          }
+
+          @if (mostrarFormRepostular) {
+            <div class="form-repostular">
+              <p class="repostular-label">
+                Cuéntanos más sobre tu experiencia y por qué quieres ser cuidador en CareMe:
+              </p>
+              <textarea
+                class="textarea-motivacion"
+                rows="5"
+                placeholder="Describe tu experiencia, certificaciones o cualquier información adicional que ayude a aprobar tu perfil..."
+                [(ngModel)]="motivacionRepostular"
+              ></textarea>
+              <button class="btn-login" [disabled]="repostulando" (click)="enviarRepostulacion()">
+                <mat-icon class="btn-icon">send</mat-icon>
+                {{ repostulando ? 'Enviando...' : 'Enviar nueva solicitud' }}
+              </button>
+              <button class="btn-volver" (click)="cancelarRepostular()">
+                Cancelar
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+
+
+  <div class="panel-imagen">
+    <img src="https://webdesignfyp.com/wp-content/uploads/2026/06/happy-nurse-take-care-elderly-man-wheelchair-garden-nursing-home-scaled.jpg"
+         alt="CareMe" class="imagen-lateral" />
+  </div>
+
+</div>

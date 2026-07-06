@@ -1,0 +1,295 @@
+<!-- ══ HERO ══════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <h1 class="hero-titulo">
+    <span class="texto-oscuro">Encuentra tu </span><span class="texto-azul">cuidador ideal</span>
+  </h1>
+  <p class="hero-subtitulo">Cuidadores profesionales verificados a tu disposición</p>
+</div>
+
+<!-- ══ TABS ══════════════════════════════════════════════════════════ -->
+<mat-tab-group animationDuration="200ms" class="tabs-buscar">
+
+  <!-- ═════ TAB 1 — Búsqueda general ═════ -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon class="tab-icono">search</mat-icon> Búsqueda general
+    </ng-template>
+
+    <!-- Filtros -->
+    <div class="filtros-wrapper">
+      <mat-card class="filtros-card">
+        <form [formGroup]="form" (ngSubmit)="buscar()">
+          <div class="filtros-grid">
+
+            <!-- Ubicación -->
+            <mat-form-field appearance="outline">
+              <mat-label>Ubicación</mat-label>
+              <mat-icon matPrefix class="prefix-icon">location_on</mat-icon>
+              <mat-select formControlName="ubicacion">
+                <mat-option value="">Cualquier distrito</mat-option>
+                @for (d of distritos; track d) {
+                  <mat-option [value]="d">{{ d }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Especialidad -->
+            <mat-form-field appearance="outline">
+              <mat-label>Especialidad</mat-label>
+              <mat-icon matPrefix class="prefix-icon">medical_services</mat-icon>
+              <mat-select formControlName="especialidad">
+                <mat-option value="">Todas las especialidades</mat-option>
+                @for (e of especialidades; track e) {
+                  <mat-option [value]="e">{{ e }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Disponibilidad (fecha → día de la semana) -->
+            <mat-form-field appearance="outline">
+              <mat-label>Disponible el día</mat-label>
+              <mat-icon matPrefix class="prefix-icon">event</mat-icon>
+              <input matInput [matDatepicker]="picker" formControlName="disponibilidad"
+                     placeholder="Selecciona una fecha" readonly />
+              <mat-datepicker-toggle matIconSuffix [for]="picker" />
+              <mat-datepicker #picker />
+              @if (form.value.disponibilidad) {
+                <mat-hint>Se busca disponibilidad los {{ diaEnEspanolPublico(form.value.disponibilidad) }}</mat-hint>
+              }
+            </mat-form-field>
+
+            <!-- Calificación -->
+            <mat-form-field appearance="outline">
+              <mat-label>Calificación mínima</mat-label>
+              <mat-icon matPrefix class="prefix-icon">star</mat-icon>
+              <mat-select formControlName="calificacion">
+                <mat-option value="">Cualquier calificación</mat-option>
+                @for (r of rangosCalificacion; track r.value) {
+                  <mat-option [value]="r.value">{{ r.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+          </div>
+
+          <div class="filtros-acciones">
+            <button mat-stroked-button type="button" (click)="limpiar()">
+              <mat-icon>refresh</mat-icon> Ver todos
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="buscando || cargandoInicial">
+              <mat-icon>filter_list</mat-icon>
+              {{ buscando ? 'Buscando...' : 'Buscar cuidadores' }}
+            </button>
+          </div>
+        </form>
+      </mat-card>
+    </div>
+
+    <!-- Resultados -->
+    <div class="resultados-wrapper">
+      @if (cargandoInicial) {
+        <div class="sin-resultados">
+          <mat-icon>hourglass_top</mat-icon>
+          <p>Cargando cuidadores...</p>
+        </div>
+      }
+
+      @if (buscado) {
+        <div class="resultados-header">
+          <span class="conteo">
+            <strong>{{ resultados.length }}</strong>
+            cuidador{{ resultados.length !== 1 ? 'es' : '' }} encontrado{{ resultados.length !== 1 ? 's' : '' }}
+          </span>
+          <mat-slide-toggle [checked]="ordenarPorCalificacion" (change)="toggleOrden()" color="primary">
+            Ordenar por calificación
+          </mat-slide-toggle>
+        </div>
+      }
+
+      @if (buscado && resultados.length === 0) {
+        <div class="sin-resultados">
+          <mat-icon>search_off</mat-icon>
+          <p>No se encontraron cuidadores con esos filtros.</p>
+        </div>
+      }
+
+      <div class="grid-cards">
+        @for (c of resultados; track c.idCuidador) {
+          <mat-card class="card-cuidador">
+            <mat-card-header>
+              @if (c.usuario?.fotoUrl) {
+                <img mat-card-avatar [src]="c.usuario!.fotoUrl" [alt]="c.usuario?.nombres" class="avatar-foto" />
+              } @else {
+                <div mat-card-avatar class="avatar">
+                  {{ c.usuario?.nombres?.charAt(0) }}{{ c.usuario?.apellidos?.charAt(0) }}
+                </div>
+              }
+              <mat-card-title>{{ c.usuario?.nombres }} {{ c.usuario?.apellidos }}</mat-card-title>
+              <mat-card-subtitle>
+                <mat-chip color="primary" highlighted>{{ c.especialidad }}</mat-chip>
+              </mat-card-subtitle>
+              @if (esFamiliar) {
+                <button mat-icon-button class="btn-favorito"
+                        [class.activo]="esFavorito(c.idCuidador)"
+                        [matTooltip]="esFavorito(c.idCuidador) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+                        (click)="toggleFavorito(c)">
+                  <mat-icon>{{ esFavorito(c.idCuidador) ? 'favorite' : 'favorite_border' }}</mat-icon>
+                </button>
+              }
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="info-fila">
+                <mat-icon class="icono-info">location_on</mat-icon>
+                <span>{{ c.ubicacion ?? '—' }}</span>
+              </div>
+              <div class="info-fila">
+                <mat-icon class="icono-info">schedule</mat-icon>
+                <span>{{ c.disponibilidadTexto ?? '—' }}</span>
+              </div>
+              <div class="info-fila">
+                <mat-icon class="icono-info">payments</mat-icon>
+                <span>S/ {{ c.tarifaBase }}/hora</span>
+              </div>
+              <div class="info-fila calificacion">
+                @if (!c.calificacionPromedio || c.calificacionPromedio === 0) {
+                  <mat-icon class="icono-nuevo">verified</mat-icon>
+                  <span class="texto-nuevo">Nuevo cuidador</span>
+                } @else {
+                  <span class="estrellas-texto">{{ c.calificacionPromedio.toFixed(1) }}</span>
+                  @for (e of estrellas(c.calificacionPromedio); track $index) {
+                    <mat-icon class="estrella-llena">star</mat-icon>
+                  }
+                }
+              </div>
+            </mat-card-content>
+
+            <mat-divider />
+            <mat-card-actions>
+              <a mat-button color="primary" [routerLink]="['/solicitar', c.idCuidador]">
+                <mat-icon>add_circle</mat-icon> Solicitar
+              </a>
+              <button mat-button (click)="verResenas(c)">
+                <mat-icon>rate_review</mat-icon> Ver reseñas
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    </div>
+  </mat-tab>
+
+  <!-- ═════ TAB 2 — Condición médica ═════ -->
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon class="tab-icono">health_and_safety</mat-icon> Condición médica
+    </ng-template>
+
+    <div class="buscar-layout">
+
+      <mat-card class="panel-filtros">
+        <mat-card-header>
+          <mat-card-title><mat-icon>health_and_safety</mat-icon> Especialistas</mat-card-title>
+          <mat-card-subtitle>Busca por enfermedad o condición específica</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="formCondicion" (ngSubmit)="buscarPorCondicion()">
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Condición médica</mat-label>
+              <mat-icon matPrefix>health_and_safety</mat-icon>
+              <input matInput formControlName="condicion" placeholder="Ej: Alzheimer, Parkinson, Diabetes" />
+            </mat-form-field>
+            <div class="acciones-filtro">
+              <button mat-raised-button color="primary" type="submit" [disabled]="buscandoCondicion">
+                <mat-icon>search</mat-icon> {{ buscandoCondicion ? 'Buscando...' : 'Buscar' }}
+              </button>
+              <button mat-stroked-button type="button" (click)="limpiarCondicion()">Limpiar</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="panel-resultados">
+        @if (buscadoCondicion && mensajeCondicion) {
+          <div class="aviso-sin-resultados">
+            <mat-icon>info</mat-icon>
+            <div>
+              <p><strong>{{ mensajeCondicion }}</strong></p>
+              <p class="sugerencia">{{ sugerenciaCondicion }}</p>
+            </div>
+          </div>
+        }
+
+        @if (buscadoCondicion && resultadosCondicion.length > 0) {
+          <div class="resultados-header">
+            <span class="conteo">
+              <strong>{{ resultadosCondicion.length }}</strong>
+              especialista{{ resultadosCondicion.length !== 1 ? 's' : '' }} encontrado{{ resultadosCondicion.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        }
+
+        <div class="grid-cards">
+          @for (c of resultadosCondicion; track c.idCuidador) {
+            <mat-card class="card-cuidador">
+              <mat-card-header>
+                @if (c.usuario?.fotoUrl) {
+                  <img mat-card-avatar [src]="c.usuario!.fotoUrl" [alt]="c.usuario?.nombres" class="avatar-foto" />
+                } @else {
+                  <div mat-card-avatar class="avatar">
+                    {{ c.usuario?.nombres?.charAt(0) }}{{ c.usuario?.apellidos?.charAt(0) }}
+                  </div>
+                }
+                <mat-card-title>{{ c.usuario?.nombres }} {{ c.usuario?.apellidos }}</mat-card-title>
+                <mat-card-subtitle>
+                  <mat-chip color="primary" highlighted>{{ c.especialidad }}</mat-chip>
+                </mat-card-subtitle>
+                @if (esFamiliar) {
+                  <button mat-icon-button class="btn-favorito"
+                          [class.activo]="esFavorito(c.idCuidador)"
+                          [matTooltip]="esFavorito(c.idCuidador) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+                          (click)="toggleFavorito(c)">
+                    <mat-icon>{{ esFavorito(c.idCuidador) ? 'favorite' : 'favorite_border' }}</mat-icon>
+                  </button>
+                }
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-fila"><mat-icon class="icono-info">location_on</mat-icon><span>{{ c.ubicacion ?? '—' }}</span></div>
+                <div class="info-fila"><mat-icon class="icono-info">payments</mat-icon><span>S/ {{ c.tarifaBase }}/hora</span></div>
+                <div class="info-fila calificacion">
+                  @if (!c.calificacionPromedio || c.calificacionPromedio === 0) {
+                    <mat-icon class="icono-nuevo">verified</mat-icon>
+                    <span class="texto-nuevo">Nuevo cuidador</span>
+                  } @else {
+                    <span class="estrellas-texto">{{ c.calificacionPromedio.toFixed(1) }}</span>
+                    @for (e of estrellas(c.calificacionPromedio); track $index) {
+                      <mat-icon class="estrella-llena">star</mat-icon>
+                    }
+                  }
+                </div>
+                @if (c.condiciones && c.condiciones.length > 0) {
+                  <div class="condiciones">
+                    <mat-icon class="icono-info">verified</mat-icon>
+                    @for (cond of c.condiciones; track cond.idCondicion) {
+                      <mat-chip class="chip-condicion">{{ cond.nombreCondicion }}</mat-chip>
+                    }
+                  </div>
+                }
+              </mat-card-content>
+              <mat-divider />
+              <mat-card-actions>
+                <a mat-button color="primary" [routerLink]="['/solicitar', c.idCuidador]">
+                  <mat-icon>add_circle</mat-icon> Solicitar
+                </a>
+                <button mat-button (click)="verResenas(c)">
+                  <mat-icon>rate_review</mat-icon> Ver reseñas
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </div>
+  </mat-tab>
+
+</mat-tab-group>

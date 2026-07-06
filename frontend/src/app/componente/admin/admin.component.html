@@ -1,0 +1,116 @@
+<div class="admin-page">
+
+  <!-- Cabecera -->
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-titulo">Panel de Administración</h1>
+      <p class="admin-sub">Gestión de solicitudes de cuidadores</p>
+    </div>
+    <div class="header-acciones">
+      @if (pendientesCount > 0) {
+        <span class="badge-pendientes">{{ pendientesCount }} pendiente{{ pendientesCount !== 1 ? 's' : '' }}</span>
+      }
+      <mat-form-field appearance="outline" class="filtro-select">
+        <mat-label>Filtrar por estado</mat-label>
+        <mat-select [(ngModel)]="filtroEstado" (selectionChange)="cargar()">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="pendiente">Pendientes</mat-option>
+          <mat-option value="aprobado">Aprobados</mat-option>
+          <mat-option value="rechazado">Rechazados</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Lista de verificaciones -->
+  @if (cargando) {
+    <div class="estado-centro">
+      <mat-spinner diameter="48" />
+      <p>Cargando solicitudes...</p>
+    </div>
+  } @else if (verificaciones.length === 0) {
+    <div class="estado-centro">
+      <mat-icon class="icono-vacio">verified_user</mat-icon>
+      <p>No hay solicitudes {{ filtroEstado ? 'con estado "' + filtroEstado + '"' : '' }}.</p>
+    </div>
+  } @else {
+    <div class="verificaciones-lista">
+      @for (v of verificaciones; track v.idVerificacion) {
+        <mat-card class="verif-card">
+
+          <!-- Encabezado de la tarjeta -->
+          <div class="verif-header">
+            <div class="avatar-cuidador">{{ initiales(v) }}</div>
+            <div class="verif-info">
+              <p class="verif-nombre">{{ v.nombresCuidador }} {{ v.apellidosCuidador }}</p>
+              <p class="verif-email">{{ v.emailCuidador }}</p>
+              <p class="verif-meta">
+                @if (v.especialidadCuidador) { <span>{{ v.especialidadCuidador }}</span> }
+                @if (v.ubicacionCuidador) { <span> · {{ v.ubicacionCuidador }}</span> }
+                @if (v.tarifaBase) { <span> · S/ {{ v.tarifaBase }}/h</span> }
+              </p>
+            </div>
+            <span class="estado-chip" [ngClass]="chipColor(v.estado)">
+              {{ v.estado | uppercase }}
+            </span>
+          </div>
+
+          <!-- Motivación -->
+          @if (v.motivacion) {
+            <div class="seccion">
+              <p class="seccion-label"><mat-icon class="sec-icon">chat_bubble_outline</mat-icon> Motivación del cuidador</p>
+              <p class="seccion-texto">{{ v.motivacion }}</p>
+            </div>
+          }
+
+          <!-- Observaciones del admin (si ya fue revisado) -->
+          @if (v.observaciones && v.estado !== 'pendiente') {
+            <div class="seccion">
+              <p class="seccion-label"><mat-icon class="sec-icon">admin_panel_settings</mat-icon> Observaciones del admin</p>
+              <p class="seccion-texto seccion-obs">{{ v.observaciones }}</p>
+            </div>
+          }
+
+          <!-- Fechas -->
+          <div class="verif-fechas">
+            <span><mat-icon class="fecha-icon">schedule</mat-icon> Solicitado: {{ v.fechaSolicitud | date:'dd/MM/yyyy HH:mm' }}</span>
+            @if (v.fechaRevision) {
+              <span><mat-icon class="fecha-icon">event_available</mat-icon> Revisado: {{ v.fechaRevision | date:'dd/MM/yyyy HH:mm' }}</span>
+            }
+          </div>
+
+          <!-- Acciones (solo para pendientes) -->
+          @if (v.estado === 'pendiente') {
+            @if (rechazandoId === v.idVerificacion) {
+              <!-- Formulario de rechazo inline -->
+              <div class="rechazo-form">
+                <mat-form-field appearance="outline" class="campo-full">
+                  <mat-label>Motivo del rechazo</mat-label>
+                  <textarea matInput [(ngModel)]="motivoRechazo" rows="2"
+                            placeholder="Explica al cuidador por qué fue rechazado..."></textarea>
+                </mat-form-field>
+                <div class="rechazo-acciones">
+                  <button mat-stroked-button (click)="cancelarRechazo()">Cancelar</button>
+                  <button mat-raised-button color="warn" (click)="confirmarRechazo(v)">
+                    <mat-icon>close</mat-icon> Confirmar rechazo
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="verif-acciones">
+                <button mat-raised-button color="primary" (click)="aprobar(v)">
+                  <mat-icon>check_circle</mat-icon> Aprobar
+                </button>
+                <button mat-stroked-button color="warn" (click)="iniciarRechazo(v)">
+                  <mat-icon>cancel</mat-icon> Rechazar
+                </button>
+              </div>
+            }
+          }
+
+        </mat-card>
+      }
+    </div>
+  }
+
+</div>

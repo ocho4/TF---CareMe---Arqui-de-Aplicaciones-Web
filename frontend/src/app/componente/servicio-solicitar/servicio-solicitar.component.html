@@ -1,0 +1,233 @@
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <a mat-button routerLink="/buscar" class="btn-volver">
+      <mat-icon>arrow_back</mat-icon> Volver a buscar
+    </a>
+    <div class="hero-texto">
+      <h1 class="hero-titulo">
+        <span class="texto-oscuro">Solicitar</span>
+        <span class="texto-azul"> servicio de cuidado</span>
+      </h1>
+      <p class="hero-subtitulo">Confirma los datos y envía tu solicitud al cuidador</p>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+@if (cargando) {
+  <div class="loading-wrap">
+    <mat-spinner diameter="48" />
+    <p class="loading-texto">Cargando información del cuidador...</p>
+  </div>
+}
+
+<!-- CONTENIDO -->
+@if (!cargando && cuidador) {
+  <div class="contenido">
+
+    <!-- TARJETA CUIDADOR -->
+    <div class="col-perfil">
+      <mat-card class="card-perfil">
+        <div class="perfil-header">
+          @if (cuidador.usuario?.fotoUrl) {
+            <img [src]="cuidador.usuario!.fotoUrl" [alt]="cuidador.usuario?.nombres" class="avatar-grande" />
+          } @else {
+            <div class="avatar-grande avatar-iniciales">
+              {{ (cuidador.usuario?.nombres ?? '?')[0] }}{{ (cuidador.usuario?.apellidos ?? '')[0] }}
+            </div>
+          }
+          <div class="perfil-nombre-wrap">
+            <h2 class="perfil-nombre">
+              {{ cuidador.usuario?.nombres }} {{ cuidador.usuario?.apellidos }}
+            </h2>
+            <span class="perfil-rol">Cuidador profesional</span>
+          </div>
+        </div>
+
+        <mat-divider class="divider-perfil" />
+
+        <div class="perfil-info">
+          <div class="info-fila">
+            <mat-icon class="ic-info">medical_services</mat-icon>
+            <span>{{ cuidador.especialidad }}</span>
+          </div>
+          <div class="info-fila">
+            <mat-icon class="ic-info">location_on</mat-icon>
+            <span>{{ cuidador.ubicacion }}</span>
+          </div>
+          <div class="info-fila">
+            <mat-icon class="ic-info">schedule</mat-icon>
+            <span>{{ cuidador.disponibilidadTexto ?? 'No especificada' }}</span>
+          </div>
+          <div class="info-fila tarifa-fila">
+            <mat-icon class="ic-info">payments</mat-icon>
+            <span class="tarifa-valor">S/ {{ cuidador.tarifaBase }}<small>/hora</small></span>
+          </div>
+          <div class="info-fila">
+            @if (!cuidador.calificacionPromedio || cuidador.calificacionPromedio === 0) {
+              <mat-icon class="ic-nuevo">verified</mat-icon>
+              <span class="chip-nuevo">Nuevo cuidador</span>
+            } @else {
+              <mat-icon class="ic-info ic-estrella">star</mat-icon>
+              <span class="cal-texto">{{ cuidador.calificacionPromedio.toFixed(1) }}</span>
+              @for (e of estrellas(cuidador.calificacionPromedio); track $index) {
+                <mat-icon class="estrella">star</mat-icon>
+              }
+            }
+          </div>
+        </div>
+
+        @if (cuidador.condiciones && cuidador.condiciones.length > 0) {
+          <mat-divider class="divider-perfil" />
+          <div class="condiciones-wrap">
+            <p class="condiciones-label">Condiciones que atiende:</p>
+            <div class="condiciones-chips">
+              @for (cond of cuidador.condiciones; track cond.idCondicion) {
+                <span class="chip-condicion">{{ cond.nombreCondicion }}</span>
+              }
+            </div>
+          </div>
+        }
+      </mat-card>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="col-form">
+      <mat-card class="card-form">
+        <mat-card-header class="form-header">
+          <mat-card-title class="form-titulo">Detalles de la solicitud</mat-card-title>
+          <mat-card-subtitle>Completa los campos para enviar tu solicitud</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="enviar()">
+
+            <!-- Paciente -->
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Paciente a cuidar</mat-label>
+              <mat-icon matPrefix class="ic-prefix">elderly</mat-icon>
+              <mat-select formControlName="idPaciente">
+                @for (p of pacientes; track p.idPaciente) {
+                  <mat-option [value]="p.idPaciente">
+                    {{ p.usuario?.nombres }} {{ p.usuario?.apellidos }}
+                    @if (p.necesidadesEspecificas) {
+                      — {{ p.necesidadesEspecificas | slice:0:40 }}
+                    }
+                  </mat-option>
+                }
+              </mat-select>
+              @if (form.get('idPaciente')?.hasError('required') && form.get('idPaciente')?.touched) {
+                <mat-error>Selecciona un paciente</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Inicio -->
+            <p class="etiqueta-grupo">
+              <mat-icon class="ic-label">event</mat-icon> Inicio del servicio
+            </p>
+            <div class="fila-fecha-hora">
+              <mat-form-field appearance="outline" class="campo-fecha">
+                <mat-label>Fecha de inicio</mat-label>
+                <input matInput [matDatepicker]="pickerInicio" formControlName="fechaInicio"
+                       [min]="hoy" />
+                <mat-datepicker-toggle matSuffix [for]="pickerInicio" />
+                <mat-datepicker #pickerInicio />
+                @if (form.get('fechaInicio')?.hasError('required') && form.get('fechaInicio')?.touched) {
+                  <mat-error>Requerido</mat-error>
+                }
+              </mat-form-field>
+              <div class="grupo-hora">
+                <mat-form-field appearance="outline" class="campo-hora-h">
+                  <mat-label>Hora</mat-label>
+                  <mat-select formControlName="horaInicioH">
+                    @for (h of horas; track h) { <mat-option [value]="h">{{ h }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <span class="sep">:</span>
+                <mat-form-field appearance="outline" class="campo-hora-m">
+                  <mat-label>Min</mat-label>
+                  <mat-select formControlName="horaInicioM">
+                    @for (m of minutos; track m) { <mat-option [value]="m">{{ pad(m) }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="campo-periodo">
+                  <mat-select formControlName="horaInicioP">
+                    @for (p of periodos; track p) { <mat-option [value]="p">{{ p }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Fin -->
+            <p class="etiqueta-grupo">
+              <mat-icon class="ic-label">event_available</mat-icon> Fin del servicio
+            </p>
+            <div class="fila-fecha-hora">
+              <mat-form-field appearance="outline" class="campo-fecha">
+                <mat-label>Fecha de fin</mat-label>
+                <input matInput [matDatepicker]="pickerFin" formControlName="fechaFin"
+                       [min]="hoy" />
+                <mat-datepicker-toggle matSuffix [for]="pickerFin" />
+                <mat-datepicker #pickerFin />
+                @if (form.get('fechaFin')?.hasError('required') && form.get('fechaFin')?.touched) {
+                  <mat-error>Requerido</mat-error>
+                }
+              </mat-form-field>
+              <div class="grupo-hora">
+                <mat-form-field appearance="outline" class="campo-hora-h">
+                  <mat-label>Hora</mat-label>
+                  <mat-select formControlName="horaFinH">
+                    @for (h of horas; track h) { <mat-option [value]="h">{{ h }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <span class="sep">:</span>
+                <mat-form-field appearance="outline" class="campo-hora-m">
+                  <mat-label>Min</mat-label>
+                  <mat-select formControlName="horaFinM">
+                    @for (m of minutos; track m) { <mat-option [value]="m">{{ pad(m) }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="campo-periodo">
+                  <mat-select formControlName="horaFinP">
+                    @for (p of periodos; track p) { <mat-option [value]="p">{{ p }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Tipo -->
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Tipo de servicio</mat-label>
+              <mat-icon matPrefix class="ic-prefix">category</mat-icon>
+              <mat-select formControlName="tipoServicio">
+                <mat-option value="basico">
+                  <mat-icon>home</mat-icon> Básico
+                </mat-option>
+                <mat-option value="especializado">
+                  <mat-icon>medical_services</mat-icon> Especializado
+                </mat-option>
+                <mat-option value="nocturno">
+                  <mat-icon>nights_stay</mat-icon> Nocturno
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="acciones">
+              <button mat-raised-button color="primary" type="submit"
+                      [disabled]="enviando" class="btn-enviar">
+                <mat-icon>{{ enviando ? 'hourglass_top' : 'send' }}</mat-icon>
+                {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
+              </button>
+              <button mat-stroked-button type="button" routerLink="/buscar">
+                <mat-icon>close</mat-icon> Cancelar
+              </button>
+            </div>
+
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+}

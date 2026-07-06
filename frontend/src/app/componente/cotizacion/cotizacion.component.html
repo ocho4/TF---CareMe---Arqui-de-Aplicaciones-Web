@@ -1,0 +1,297 @@
+<!-- HERO -->
+<div class="hero">
+  <h1 class="hero-titulo">
+    <span class="texto-oscuro">Simulador de</span>
+    <span class="texto-azul"> costos</span>
+  </h1>
+  <p class="hero-subtitulo">
+    Elige un cuidador, configura las fechas y obtén el costo estimado antes de solicitar
+  </p>
+</div>
+
+<div class="pagina">
+
+  <!-- ═══ PASO 1: ELEGIR CUIDADOR ═══════════════════════════════════ -->
+  <section class="seccion">
+    <div class="seccion-titulo">
+      <div class="paso-badge">1</div>
+      <div>
+        <h2 class="paso-titulo">Elige tu cuidador</h2>
+        <p class="paso-sub">Selecciona al profesional con quien quieres cotizar</p>
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="loading-wrap">
+        <mat-spinner diameter="40" />
+        <span>Cargando cuidadores...</span>
+      </div>
+    }
+
+    <div class="grid-cards">
+      @for (c of cuidadores; track c.idCuidador) {
+        <mat-card class="card-cuidador"
+                  [class.card-seleccionada]="cuidadorSeleccionado?.idCuidador === c.idCuidador"
+                  (click)="seleccionar(c)">
+
+          @if (cuidadorSeleccionado?.idCuidador === c.idCuidador) {
+            <div class="check-seleccion">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+          }
+
+          <mat-card-header>
+            @if (c.usuario?.fotoUrl) {
+              <img mat-card-avatar [src]="c.usuario!.fotoUrl" [alt]="c.usuario?.nombres"
+                   class="avatar-foto" />
+            } @else {
+              <div mat-card-avatar class="avatar">
+                {{ (c.usuario?.nombres ?? '?')[0] }}{{ (c.usuario?.apellidos ?? '')[0] }}
+              </div>
+            }
+            <mat-card-title>{{ c.usuario?.nombres }} {{ c.usuario?.apellidos }}</mat-card-title>
+            <mat-card-subtitle>{{ c.especialidad }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="info-fila">
+              <mat-icon class="icono-info">location_on</mat-icon>
+              <span>{{ c.ubicacion }}</span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="icono-info">schedule</mat-icon>
+              <span>{{ c.disponibilidadTexto ?? '—' }}</span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="icono-info">payments</mat-icon>
+              <span><strong>S/ {{ c.tarifaBase }}</strong>/hora</span>
+            </div>
+            <div class="info-fila">
+              @if (!c.calificacionPromedio || c.calificacionPromedio === 0) {
+                <mat-icon class="icono-nuevo">verified</mat-icon>
+                <span class="texto-nuevo">Nuevo cuidador</span>
+              } @else {
+                <span class="estrellas-texto">{{ c.calificacionPromedio.toFixed(1) }}</span>
+                @for (e of estrellas(c.calificacionPromedio); track $index) {
+                  <mat-icon class="estrella-llena">star</mat-icon>
+                }
+              }
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="seleccionar(c); $event.stopPropagation()">
+              <mat-icon>{{ cuidadorSeleccionado?.idCuidador === c.idCuidador ? 'check' : 'calculate' }}</mat-icon>
+              {{ cuidadorSeleccionado?.idCuidador === c.idCuidador ? 'Seleccionado' : 'Cotizar con él' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  </section>
+
+  <!-- ═══ PASO 2: CONFIGURAR Y RESULTADO ════════════════════════════ -->
+  @if (cuidadorSeleccionado) {
+    <section class="seccion" id="seccion-form">
+      <div class="seccion-titulo">
+        <div class="paso-badge">2</div>
+        <div>
+          <h2 class="paso-titulo">Configura el servicio</h2>
+          <p class="paso-sub">
+            Cotizando con
+            <strong>{{ cuidadorSeleccionado.usuario?.nombres }} {{ cuidadorSeleccionado.usuario?.apellidos }}</strong>
+            — S/ {{ cuidadorSeleccionado.tarifaBase }}/h
+          </p>
+        </div>
+      </div>
+
+      <div class="layout-configurar">
+
+        <!-- Formulario -->
+        <mat-card class="card-form">
+          <mat-card-content>
+            <form [formGroup]="form" (ngSubmit)="cotizar()">
+
+              <p class="etiqueta-bloque">
+                <mat-icon class="ic">event</mat-icon> Inicio del servicio
+              </p>
+              <div class="fila-fecha-hora">
+                <mat-form-field appearance="outline" class="campo-fecha">
+                  <mat-label>Fecha de inicio</mat-label>
+                  <input matInput [matDatepicker]="pi" formControlName="fechaInicio" [min]="hoy" />
+                  <mat-datepicker-toggle matSuffix [for]="pi" />
+                  <mat-datepicker #pi />
+                  @if (form.get('fechaInicio')?.hasError('required') && form.get('fechaInicio')?.touched) {
+                    <mat-error>Requerido</mat-error>
+                  }
+                </mat-form-field>
+                <div class="grupo-hora">
+                  <mat-form-field appearance="outline" class="ch">
+                    <mat-label>H</mat-label>
+                    <mat-select formControlName="horaInicioH">
+                      @for (h of horas; track h) { <mat-option [value]="h">{{ h }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                  <span class="sep">:</span>
+                  <mat-form-field appearance="outline" class="cm">
+                    <mat-label>M</mat-label>
+                    <mat-select formControlName="horaInicioM">
+                      @for (m of minutos; track m) { <mat-option [value]="m">{{ pad(m) }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="cp">
+                    <mat-select formControlName="horaInicioP">
+                      @for (p of periodos; track p) { <mat-option [value]="p">{{ p }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <p class="etiqueta-bloque">
+                <mat-icon class="ic">event_available</mat-icon> Fin del servicio
+              </p>
+              <div class="fila-fecha-hora">
+                <mat-form-field appearance="outline" class="campo-fecha">
+                  <mat-label>Fecha de fin</mat-label>
+                  <input matInput [matDatepicker]="pf" formControlName="fechaFin" [min]="hoy" />
+                  <mat-datepicker-toggle matSuffix [for]="pf" />
+                  <mat-datepicker #pf />
+                  @if (form.get('fechaFin')?.hasError('required') && form.get('fechaFin')?.touched) {
+                    <mat-error>Requerido</mat-error>
+                  }
+                </mat-form-field>
+                <div class="grupo-hora">
+                  <mat-form-field appearance="outline" class="ch">
+                    <mat-label>H</mat-label>
+                    <mat-select formControlName="horaFinH">
+                      @for (h of horas; track h) { <mat-option [value]="h">{{ h }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                  <span class="sep">:</span>
+                  <mat-form-field appearance="outline" class="cm">
+                    <mat-label>M</mat-label>
+                    <mat-select formControlName="horaFinM">
+                      @for (m of minutos; track m) { <mat-option [value]="m">{{ pad(m) }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="cp">
+                    <mat-select formControlName="horaFinP">
+                      @for (p of periodos; track p) { <mat-option [value]="p">{{ p }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Especialidad requerida (opcional)</mat-label>
+                <mat-icon matPrefix class="ic">star</mat-icon>
+                <input matInput formControlName="especialidadRequerida"
+                       placeholder="Ej: Alzheimer, Geriatría" />
+                <mat-hint>Añade un recargo del 15% si se especifica</mat-hint>
+              </mat-form-field>
+
+              <div class="checks">
+                <mat-checkbox formControlName="esHorarioNocturno" color="primary">
+                  <mat-icon class="ic-check">nights_stay</mat-icon>
+                  Horario nocturno <span class="recargo-hint">(+30%)</span>
+                </mat-checkbox>
+                <mat-checkbox formControlName="esFinDeSemana" color="primary">
+                  <mat-icon class="ic-check">weekend</mat-icon>
+                  Fin de semana <span class="recargo-hint">(+20%)</span>
+                </mat-checkbox>
+              </div>
+
+              <button mat-raised-button color="primary" type="submit"
+                      class="btn-calcular" [disabled]="calculando">
+                <mat-icon>{{ calculando ? 'hourglass_top' : 'calculate' }}</mat-icon>
+                {{ calculando ? 'Calculando...' : 'Calcular costo estimado' }}
+              </button>
+
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Resultado -->
+        <div id="resultado">
+          @if (calculando) {
+            <div class="loading-wrap">
+              <mat-spinner diameter="40" />
+              <span>Calculando...</span>
+            </div>
+          } @else if (!resultado) {
+            <div class="estado-vacio">
+              <mat-icon>receipt_long</mat-icon>
+              <p>Completa las fechas y presiona<br><strong>Calcular costo estimado</strong></p>
+            </div>
+          } @else {
+            <mat-card class="card-resultado">
+              <mat-card-header>
+                <mat-card-title class="resultado-titulo">
+                  <mat-icon>receipt</mat-icon> Desglose del costo
+                </mat-card-title>
+                <mat-card-subtitle>
+                  {{ resultado.horas }} hora{{ resultado.horas !== 1 ? 's' : '' }} de servicio
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-divider />
+              <mat-card-content>
+
+                <div class="linea-costo">
+                  <span>Tarifa base</span>
+                  <span>S/ {{ resultado.tarifaBase | number:'1.2-2' }}/h</span>
+                </div>
+                <div class="linea-costo">
+                  <span>Subtotal ({{ resultado.horas }}h)</span>
+                  <span>S/ {{ resultado.costoBase | number:'1.2-2' }}</span>
+                </div>
+
+                @if (resultado.recargoNocturno > 0) {
+                  <div class="linea-costo recargo">
+                    <span><mat-icon class="ic-small">nightlight</mat-icon> Nocturno (+30%)</span>
+                    <span>+ S/ {{ resultado.recargoNocturno | number:'1.2-2' }}</span>
+                  </div>
+                }
+                @if (resultado.recargoFinDeSemana > 0) {
+                  <div class="linea-costo recargo">
+                    <span><mat-icon class="ic-small">weekend</mat-icon> Fin de semana (+20%)</span>
+                    <span>+ S/ {{ resultado.recargoFinDeSemana | number:'1.2-2' }}</span>
+                  </div>
+                }
+                @if (resultado.recargoEspecialidad > 0) {
+                  <div class="linea-costo recargo">
+                    <span><mat-icon class="ic-small">star</mat-icon> Especialidad (+15%)</span>
+                    <span>+ S/ {{ resultado.recargoEspecialidad | number:'1.2-2' }}</span>
+                  </div>
+                }
+                @if (resultado.descuentoLargaDuracion > 0) {
+                  <div class="linea-costo descuento">
+                    <span><mat-icon class="ic-small">discount</mat-icon> Descuento larga duración</span>
+                    <span>- S/ {{ resultado.descuentoLargaDuracion | number:'1.2-2' }}</span>
+                  </div>
+                }
+
+                <mat-divider />
+
+                <div class="linea-total">
+                  <span>Total estimado</span>
+                  <span class="monto-total">S/ {{ resultado.costoTotal | number:'1.2-2' }}</span>
+                </div>
+
+              </mat-card-content>
+              <mat-card-actions class="resultado-acciones">
+                <button mat-raised-button color="primary" (click)="solicitarServicio()">
+                  <mat-icon>send</mat-icon> Solicitar este servicio
+                </button>
+                <button mat-stroked-button (click)="cuidadorSeleccionado = null; resultado = undefined">
+                  <mat-icon>refresh</mat-icon> Nueva cotización
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+
+      </div>
+    </section>
+  }
+
+</div>

@@ -1,0 +1,259 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">
+      <mat-icon>medical_services</mat-icon>
+      Gestión de Servicios
+    </span>
+    <h1 class="hero-titulo">Mis Servicios</h1>
+    <p class="hero-sub">
+      @if (esFamiliar) {
+        Consulta y gestiona todos los servicios que has contratado. Puedes cancelar sin cargo
+        con más de 24 horas de anticipación y calificar al cuidador al finalizar.
+      } @else {
+        Revisa el historial de servicios en los que participas. Cancela solicitudes pendientes
+        o confirma nuevos servicios desde "Solicitudes Pendientes".
+      }
+    </p>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<main class="contenido">
+
+  <div class="tabla-card">
+    <div class="tabla-contenedor">
+      <table mat-table [dataSource]="dataSource" matSort matSortActive="idServicio" matSortDirection="desc" class="tabla-servicios">
+
+        <!-- # -->
+        <ng-container matColumnDef="idServicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="col-id">#</th>
+          <td mat-cell *matCellDef="let s" class="col-id">
+            <span class="id-badge">#{{ s.idServicio }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Cuidador -->
+        <ng-container matColumnDef="cuidador">
+          <th mat-header-cell *matHeaderCellDef>Cuidador</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="persona-cell">
+              <div class="avatar-mini" [style.background]="colorPersona(s.cuidador?.usuario?.nombres)">
+                @if (s.cuidador?.usuario?.fotoUrl) {
+                  <img [src]="s.cuidador.usuario.fotoUrl" class="avatar-img"
+                       (error)="$any($event.target).style.display='none'" />
+                } @else {
+                  {{ iniciales(s.cuidador?.usuario?.nombres, s.cuidador?.usuario?.apellidos) }}
+                }
+              </div>
+              <span>{{ s.cuidador?.usuario?.nombres }} {{ s.cuidador?.usuario?.apellidos }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Paciente -->
+        <ng-container matColumnDef="paciente">
+          <th mat-header-cell *matHeaderCellDef>Paciente</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="persona-cell">
+              <div class="avatar-mini" [style.background]="colorPersona(s.paciente?.usuario?.nombres)">
+                @if (s.paciente?.usuario?.fotoUrl) {
+                  <img [src]="s.paciente.usuario.fotoUrl" class="avatar-img"
+                       (error)="$any($event.target).style.display='none'" />
+                } @else {
+                  {{ iniciales(s.paciente?.usuario?.nombres, s.paciente?.usuario?.apellidos) }}
+                }
+              </div>
+              <span>{{ s.paciente?.usuario?.nombres }} {{ s.paciente?.usuario?.apellidos }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fecha inicio -->
+        <ng-container matColumnDef="fechaInicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Inicio</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="fecha-cell">
+              <span [class.fecha-proxima]="esProximo(s.fechaInicio)">
+                {{ s.fechaInicio | date: 'dd/MM/yyyy' }}
+              </span>
+              <span class="fecha-hora">{{ s.fechaInicio | date: 'HH:mm' }}</span>
+              @if (esProximo(s.fechaInicio)) {
+                <span class="chip-aviso">⚠ &lt;24h</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fecha fin -->
+        <ng-container matColumnDef="fechaFin">
+          <th mat-header-cell *matHeaderCellDef>Fin</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="fecha-cell">
+              <span>{{ s.fechaFin | date: 'dd/MM/yyyy' }}</span>
+              <span class="fecha-hora">{{ s.fechaFin | date: 'HH:mm' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Costo -->
+        <ng-container matColumnDef="costoTotal">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Costo</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="costo">S/ {{ s.costoTotal | number: '1.2-2' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Estado -->
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="estado-chip" [class]="'estado-' + s.estado?.toLowerCase()">
+              {{ s.estado }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Chat -->
+        <ng-container matColumnDef="chat">
+          <th mat-header-cell *matHeaderCellDef class="col-icono">Chat</th>
+          <td mat-cell *matCellDef="let s" class="col-icono">
+            @if (s.estado !== 'FINALIZADO' && s.estado !== 'CANCELADO' && s.estado !== 'RECHAZADO') {
+              <div class="chat-btn-wrapper">
+                <button mat-icon-button class="btn-icono btn-chat"
+                        (click)="irAlChat(s.idServicio)"
+                        matTooltip="Abrir chat">
+                  <mat-icon>chat_bubble_outline</mat-icon>
+                </button>
+                @if (tieneNoLeidos(s.idServicio)) {
+                  <span class="dot-no-leido"></span>
+                }
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Pago -->
+        <ng-container matColumnDef="pago">
+          <th mat-header-cell *matHeaderCellDef class="col-icono">Pago</th>
+          <td mat-cell *matCellDef="let s" class="col-icono">
+            @if (esFamiliar && !s.pagado && (s.estado === 'CONFIRMADO' || s.estado === 'FINALIZADO')) {
+              <div class="pago-btn-wrapper">
+                <button mat-icon-button class="btn-icono btn-pago"
+                        (click)="irAlPago(s.idServicio)"
+                        matTooltip="Realizar pago">
+                  <mat-icon>payments</mat-icon>
+                </button>
+                @if (yaTermino(s.fechaFin) || s.estado === 'FINALIZADO') {
+                  <span class="dot-pago"></span>
+                }
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Favorito -->
+        <ng-container matColumnDef="favorito">
+          <th mat-header-cell *matHeaderCellDef class="col-icono">Favorito</th>
+          <td mat-cell *matCellDef="let s" class="col-icono">
+            @if (esFamiliar && s.cuidador?.idCuidador) {
+              <button mat-icon-button class="btn-icono btn-favorito-tabla"
+                      [class.activo]="esFavoritoCuidador(s.cuidador?.idCuidador)"
+                      [matTooltip]="esFavoritoCuidador(s.cuidador?.idCuidador) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+                      (click)="toggleFavoritoDesdeServicio(s)">
+                <mat-icon>{{ esFavoritoCuidador(s.cuidador?.idCuidador) ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Seguimiento -->
+        <ng-container matColumnDef="seguimiento">
+          <th mat-header-cell *matHeaderCellDef class="col-icono">Tareas</th>
+          <td mat-cell *matCellDef="let s" class="col-icono">
+            @if (s.estado === 'CONFIRMADO' || s.estado === 'FINALIZADO' || s.estado === 'CANCELADO') {
+              <div class="task-btn-wrapper">
+                <button mat-icon-button class="btn-icono btn-seguimiento"
+                        (click)="irAlSeguimiento(s.idServicio)"
+                        matTooltip="Ver lista de tareas">
+                  <mat-icon>checklist</mat-icon>
+                </button>
+                @if (tieneTareasNoVistas(s.idServicio)) {
+                  <span class="dot-tareas"></span>
+                }
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let s">
+            @if (s.estado === 'SOLICITADO') {
+              <button mat-stroked-button class="btn-accion btn-cancelar"
+                      (click)="abrirDialogo(s)">
+                <mat-icon>cancel</mat-icon> Cancelar
+              </button>
+            }
+            @if (s.estado === 'CONFIRMADO' && !yaTermino(s.fechaFin)) {
+              <button mat-stroked-button class="btn-accion btn-cancelar"
+                      (click)="abrirDialogo(s)">
+                <mat-icon>cancel</mat-icon> Cancelar
+              </button>
+            }
+            @if (!esFamiliar && s.estado === 'CONFIRMADO' && yaTermino(s.fechaFin)) {
+              <button mat-stroked-button class="btn-accion btn-finalizar"
+                      (click)="finalizarServicio(s)"
+                      matTooltip="Marcar el servicio como finalizado">
+                <mat-icon>task_alt</mat-icon> Finalizar
+              </button>
+            }
+            @if (esFamiliar && s.estado === 'FINALIZADO' && s.pagado && !s.calificado) {
+              <button mat-stroked-button class="btn-accion btn-calificar"
+                      (click)="abrirCalificacion(s)"
+                      matTooltip="Calificar al cuidador">
+                <mat-icon>star_rate</mat-icon> Calificar
+              </button>
+            }
+            @if (!esFamiliar && s.estado === 'FINALIZADO' && !yaCalificoFamiliar(s.idServicio)) {
+              <button mat-stroked-button class="btn-accion btn-calificar"
+                      (click)="abrirCalificacionFamiliar(s)"
+                      matTooltip="Calificar al familiar">
+                <mat-icon>star_rate</mat-icon> Calificar familiar
+              </button>
+            }
+            @if (s.estado === 'FINALIZADO' && (s.calificado && esFamiliar)) {
+              <span class="badge-completado">
+                <mat-icon>verified</mat-icon> Completado
+              </span>
+            }
+            @if (!esFamiliar && s.estado === 'FINALIZADO' && yaCalificoFamiliar(s.idServicio)) {
+              <span class="badge-completado">
+                <mat-icon>verified</mat-icon> Calificado
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas" class="fila-servicio"></tr>
+
+        <tr class="sin-datos-fila" *matNoDataRow>
+          <td [attr.colspan]="columnas.length">
+            <div class="estado-vacio">
+              <div class="vacio-icono"><mat-icon>event_available</mat-icon></div>
+              <h3>Sin servicios registrados</h3>
+              <p>Aquí aparecerán todos tus servicios contratados o aceptados.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="paginador-wrapper">
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons />
+    </div>
+  </div>
+
+</main>

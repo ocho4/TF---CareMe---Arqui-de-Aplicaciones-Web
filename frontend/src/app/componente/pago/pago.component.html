@@ -1,0 +1,152 @@
+<div class="pago-wrapper">
+  <mat-card class="card-pago">
+
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="icono-titulo">payment</mat-icon>
+        Confirmar pago
+      </mat-card-title>
+      <mat-card-subtitle>Servicio #{{ idServicio }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider />
+
+    <mat-card-content>
+
+      @if (cargando) {
+        <div class="estado-centro">
+          <mat-icon>hourglass_top</mat-icon><p>Cargando datos del servicio...</p>
+        </div>
+      } @else if (!servicio) {
+        <div class="estado-centro">
+          <mat-icon>error</mat-icon><p>Servicio no encontrado.</p>
+        </div>
+      } @else {
+
+        <!-- Resumen del servicio -->
+        <div class="resumen-servicio">
+          <div class="resumen-fila">
+            <span class="resumen-label">Cuidador</span>
+            <span>{{ servicio.cuidador?.usuario?.nombres }} {{ servicio.cuidador?.usuario?.apellidos }}</span>
+          </div>
+          <div class="resumen-fila">
+            <span class="resumen-label">Paciente</span>
+            <span>{{ servicio.paciente?.usuario?.nombres }} {{ servicio.paciente?.usuario?.apellidos }}</span>
+          </div>
+          <div class="resumen-fila">
+            <span class="resumen-label">Inicio</span>
+            <span>{{ servicio.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="resumen-fila resumen-total">
+            <span class="resumen-label">Total a pagar</span>
+            <span class="monto">S/ {{ servicio.costoTotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <mat-divider />
+
+        <!-- Selector de método -->
+        <p class="etiqueta-metodo">Selecciona el método de pago</p>
+        <div class="metodos">
+          <button
+            class="btn-metodo"
+            [class.activo]="metodo === 'yape'"
+            (click)="seleccionarMetodo('yape')"
+            type="button"
+          >
+            <mat-icon>phone_android</mat-icon>
+            <span>Yape</span>
+          </button>
+          <button
+            class="btn-metodo"
+            [class.activo]="metodo === 'tarjeta'"
+            (click)="seleccionarMetodo('tarjeta')"
+            type="button"
+          >
+            <mat-icon>credit_card</mat-icon>
+            <span>Tarjeta</span>
+          </button>
+        </div>
+
+        <!-- Formulario Yape -->
+        @if (metodo === 'yape') {
+          <form [formGroup]="formYape" class="form-pago">
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Número de teléfono Yape</mat-label>
+              <mat-icon matPrefix>phone</mat-icon>
+              <input matInput type="tel" formControlName="telefono" placeholder="Ej: 987654321" />
+              @if (formYape.get('telefono')?.hasError('required') && formYape.get('telefono')?.touched) {
+                <mat-error>Campo requerido</mat-error>
+              }
+              @if (formYape.get('telefono')?.hasError('pattern') && formYape.get('telefono')?.touched) {
+                <mat-error>Ingresa un número de 9 dígitos</mat-error>
+              }
+            </mat-form-field>
+            <p class="nota-simulado">
+              <mat-icon>info</mat-icon>
+              Ingresa el número registrado en Yape. El pago es simulado.
+            </p>
+          </form>
+        }
+
+        <!-- Formulario Tarjeta -->
+        @if (metodo === 'tarjeta') {
+          <form [formGroup]="formTarjeta" class="form-pago">
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Nombre del titular</mat-label>
+              <mat-icon matPrefix>person</mat-icon>
+              <input matInput formControlName="nombreTitular" placeholder="Como aparece en la tarjeta" />
+              @if (formTarjeta.get('nombreTitular')?.hasError('required') && formTarjeta.get('nombreTitular')?.touched) {
+                <mat-error>Campo requerido</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>Número de tarjeta</mat-label>
+              <mat-icon matPrefix>credit_card</mat-icon>
+              <input matInput type="tel" formControlName="numeroTarjeta" placeholder="16 dígitos" maxlength="16" />
+              @if (formTarjeta.get('numeroTarjeta')?.hasError('pattern') && formTarjeta.get('numeroTarjeta')?.touched) {
+                <mat-error>Ingresa los 16 dígitos de la tarjeta</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="fila-doble">
+              <mat-form-field appearance="outline">
+                <mat-label>Vencimiento</mat-label>
+                <input matInput formControlName="vencimiento" placeholder="MM/AA" maxlength="5" />
+                @if (formTarjeta.get('vencimiento')?.hasError('pattern') && formTarjeta.get('vencimiento')?.touched) {
+                  <mat-error>Formato MM/AA</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>CVV</mat-label>
+                <input matInput type="password" formControlName="cvv" placeholder="3-4 dígitos" maxlength="4" />
+                @if (formTarjeta.get('cvv')?.hasError('pattern') && formTarjeta.get('cvv')?.touched) {
+                  <mat-error>3 o 4 dígitos</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <p class="nota-simulado">
+              <mat-icon>info</mat-icon>
+              Pago simulado. No se realizará ningún cargo real.
+            </p>
+          </form>
+        }
+
+        <!-- Botón pagar -->
+        <button
+          mat-raised-button
+          color="primary"
+          class="btn-pagar"
+          [disabled]="procesando"
+          (click)="pagar()"
+        >
+          <mat-icon>{{ procesando ? 'hourglass_top' : 'lock' }}</mat-icon>
+          {{ procesando ? 'Procesando...' : 'Pagar S/ ' + (servicio.costoTotal | number:'1.2-2') }}
+        </button>
+
+      }
+    </mat-card-content>
+
+  </mat-card>
+</div>

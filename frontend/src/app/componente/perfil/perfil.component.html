@@ -1,0 +1,172 @@
+<div class="perfil-page">
+
+  <!-- Header -->
+  <div class="perfil-header">
+    <mat-icon class="header-icon">manage_accounts</mat-icon>
+    <div>
+      <h1 class="header-titulo">Mi perfil</h1>
+      <p class="header-sub">{{ usuario?.nombres }} {{ usuario?.apellidos }} · {{ usuario?.rol }}</p>
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="spinner-centro">
+      <mat-spinner diameter="48" />
+      <p>Cargando tu perfil...</p>
+    </div>
+  } @else if (!usuario) {
+    <div class="spinner-centro">
+      <mat-icon style="font-size:48px;width:48px;height:48px;color:#94a3b8">lock</mat-icon>
+      <p>Debes iniciar sesión para ver tu perfil.</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <div class="perfil-grid">
+
+        <!-- ── Columna izquierda: foto ── -->
+        <mat-card class="foto-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>photo_camera</mat-icon> Foto de perfil
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <!-- Preview -->
+            <div class="foto-preview-wrap">
+              @if (previewUrl) {
+                <img [src]="previewUrl" alt="Foto de perfil" class="foto-preview"
+                     (error)="$any($event.target).style.display='none'" />
+              } @else {
+                <div class="foto-placeholder">
+                  <mat-icon>person</mat-icon>
+                </div>
+              }
+            </div>
+
+            <mat-form-field appearance="outline" class="campo-completo">
+              <mat-label>URL de la imagen</mat-label>
+              <mat-icon matPrefix>link</mat-icon>
+              <input matInput formControlName="fotoUrl"
+                     placeholder="https://ejemplo.com/mi-foto.jpg" />
+              <mat-hint>Sube tu foto a internet y pega el enlace aquí</mat-hint>
+            </mat-form-field>
+
+          </mat-card-content>
+        </mat-card>
+
+        <!-- ── Columna derecha: datos del rol ── -->
+        <mat-card class="datos-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>edit_note</mat-icon> Información del perfil
+            </mat-card-title>
+            <mat-card-subtitle>
+              @if (usuario.rol === 'cuidador') { Datos visibles para los familiares que te buscan }
+              @else if (usuario.rol === 'familiar') { Dirección y datos de contacto }
+              @else { Información del paciente }
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+
+            <!-- ══ CUIDADOR ══ -->
+            @if (usuario.rol === 'cuidador') {
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Especialidad</mat-label>
+                <mat-icon matPrefix>medical_services</mat-icon>
+                <mat-select formControlName="especialidad">
+                  <mat-option value="">— Sin especificar —</mat-option>
+                  @for (e of especialidades; track e) {
+                    <mat-option [value]="e">{{ e }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Ubicación (distrito)</mat-label>
+                <mat-icon matPrefix>location_on</mat-icon>
+                <mat-select formControlName="ubicacion">
+                  <mat-option value="">— Sin especificar —</mat-option>
+                  @for (d of distritos; track d) {
+                    <mat-option [value]="d">{{ d }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Días disponibles</mat-label>
+                <mat-icon matPrefix>schedule</mat-icon>
+                <mat-select formControlName="diasDisponibles" multiple>
+                  @for (dia of diasSemana; track dia) {
+                    <mat-option [value]="dia">{{ dia }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Selecciona los días en que puedes trabajar</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Tarifa por hora (S/)</mat-label>
+                <mat-icon matPrefix>payments</mat-icon>
+                <input matInput type="number" formControlName="tarifaBase"
+                       placeholder="20.00" min="0" />
+              </mat-form-field>
+            }
+
+            <!-- ══ FAMILIAR ══ -->
+            @if (usuario.rol === 'familiar') {
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Dirección</mat-label>
+                <mat-icon matPrefix>home</mat-icon>
+                <input matInput formControlName="direccion"
+                       placeholder="Av. Ejemplo 123, Piso 2" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Distrito</mat-label>
+                <mat-icon matPrefix>location_on</mat-icon>
+                <mat-select formControlName="distrito">
+                  <mat-option value="">— Sin especificar —</mat-option>
+                  @for (d of distritos; track d) {
+                    <mat-option [value]="d">{{ d }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            <!-- ══ PACIENTE ══ -->
+            @if (usuario.rol !== 'cuidador' && usuario.rol !== 'familiar') {
+
+              <mat-form-field appearance="outline" class="campo-completo">
+                <mat-label>Necesidades específicas</mat-label>
+                <mat-icon matPrefix>favorite</mat-icon>
+                <textarea matInput formControlName="necesidadesEspecificas" rows="4"
+                          placeholder="Describe las condiciones o necesidades especiales del paciente"></textarea>
+                <mat-hint>Esta información ayuda a los cuidadores a prepararse mejor</mat-hint>
+              </mat-form-field>
+            }
+
+          </mat-card-content>
+
+          <mat-divider />
+
+          <mat-card-actions>
+            <button mat-raised-button color="primary" type="submit"
+                    [disabled]="guardando || form.invalid">
+              @if (guardando) {
+                <mat-spinner diameter="20" style="display:inline-block;margin-right:8px" />
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+      </div>
+    </form>
+  }
+
+</div>

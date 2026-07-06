@@ -1,0 +1,117 @@
+.perfil-page {
+  padding: 28px 124px 56px;
+}
+
+/* ── Header ── */
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.header-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #3D44DD;
+}
+
+.header-titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+
+.header-sub {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* ── Grid ── */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Foto card ── */
+.foto-card {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(61, 68, 221, 0.08) !important;
+  position: sticky;
+  top: 16px;
+}
+
+.foto-preview-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 20px;
+}
+
+.foto-preview {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3D44DD;
+  box-shadow: 0 4px 16px rgba(61, 68, 221, 0.2);
+}
+
+.foto-placeholder {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3D44DD, #5b61e8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.foto-placeholder mat-icon {
+  font-size: 60px;
+  width: 60px;
+  height: 60px;
+  color: white;
+}
+
+/* ── Datos card ── */
+.datos-card {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(61, 68, 221, 0.08) !important;
+}
+
+.campo-completo {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+mat-card-actions {
+  padding: 16px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Spinner centrado ── */
+.spinner-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 0;
+  gap: 16px;
+  color: #94a3b8;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+  .foto-card {
+    position: static;
+  }
+}

@@ -1,0 +1,23 @@
+# ---------- Backend (Maven / Spring Boot) ----------
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ---------- Frontend (Angular / Node) ----------
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# ---------- Despliegue: nunca subir secretos reales ----------
+.env
+backend/.env
+
+# ---------- IDEs ----------
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# ---------- Sistema operativo ----------
+.DS_Store
+Thumbs.db

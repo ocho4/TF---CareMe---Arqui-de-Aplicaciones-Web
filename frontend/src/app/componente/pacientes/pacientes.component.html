@@ -1,0 +1,125 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-contenido">
+    <div class="hero-texto">
+      <span class="hero-badge">
+        <mat-icon>family_restroom</mat-icon>
+        Gestión de Familiares
+      </span>
+      <h1 class="hero-titulo">Mis Familiares</h1>
+      <p class="hero-sub">
+        Administra los perfiles de las personas a tu cargo y mantén
+        su información actualizada para un cuidado personalizado.
+      </p>
+    </div>
+    <button mat-raised-button class="btn-agregar" (click)="abrirNuevo()">
+      <mat-icon>person_add</mat-icon>
+      Registrar familiar
+    </button>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<main class="contenido-principal">
+
+  @if (cargando) {
+    <div class="estado-carga">
+      <mat-spinner diameter="52" />
+      <p>Cargando familiares...</p>
+    </div>
+  }
+
+  @if (!cargando && pacientes.length === 0) {
+    <div class="estado-vacio">
+      <div class="vacio-icono">
+        <mat-icon>people_outline</mat-icon>
+      </div>
+      <h3>Todavía no tienes familiares registrados</h3>
+      <p>Agrega el perfil de las personas que están bajo tu cuidado.</p>
+      <button mat-raised-button color="primary" (click)="abrirNuevo()">
+        <mat-icon>person_add</mat-icon>
+        Registrar primer familiar
+      </button>
+    </div>
+  }
+
+  @if (!cargando && pacientes.length > 0) {
+    <div class="grid-familiares">
+      @for (p of pacientes; track p.idPaciente) {
+        <div class="tarjeta-familiar">
+
+          <!-- Cabecera con foto -->
+          <div class="tarjeta-cabecera">
+            <div class="avatar-wrap">
+              @if (p.usuario?.fotoUrl) {
+                <img
+                  [src]="p.usuario?.fotoUrl"
+                  [alt]="p.usuario?.nombres"
+                  class="avatar-foto"
+                  (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'"
+                />
+                <div class="avatar-iniciales avatar-fallback" [style.background]="colorAvatar(p)">
+                  {{ iniciales(p) }}
+                </div>
+              } @else {
+                <div class="avatar-iniciales" [style.background]="colorAvatar(p)">
+                  {{ iniciales(p) }}
+                </div>
+              }
+              <div class="avatar-estado"></div>
+            </div>
+            <button mat-icon-button class="btn-editar-icono" (click)="abrirEditar(p)"
+                    title="Editar datos">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+
+          <!-- Datos principales -->
+          <div class="tarjeta-cuerpo">
+            <h3 class="nombre-paciente">
+              {{ p.usuario?.nombres }} {{ p.usuario?.apellidos }}
+            </h3>
+
+            <div class="info-chips">
+              @if (p.parentesco) {
+                <span class="chip chip-parentesco">
+                  <mat-icon>family_restroom</mat-icon>
+                  {{ p.parentesco }}
+                </span>
+              }
+              @if (p.fechaNacimiento) {
+                <span class="chip chip-edad">
+                  <mat-icon>cake</mat-icon>
+                  {{ edad(p.fechaNacimiento) }}
+                </span>
+              }
+            </div>
+
+            @if (p.necesidadesEspecificas) {
+              <div class="necesidades">
+                <mat-icon class="nec-icono">favorite</mat-icon>
+                <p class="nec-texto">{{ p.necesidadesEspecificas }}</p>
+              </div>
+            } @else {
+              <p class="sin-necesidades">Sin necesidades especiales registradas</p>
+            }
+          </div>
+
+          <!-- Acciones -->
+          <div class="tarjeta-acciones">
+            <button mat-stroked-button class="btn-editar-full" (click)="abrirEditar(p)">
+              <mat-icon>edit</mat-icon>
+              Editar perfil
+            </button>
+            <button mat-icon-button class="btn-eliminar-icono" (click)="confirmarEliminar(p)"
+                    title="Eliminar familiar">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</main>

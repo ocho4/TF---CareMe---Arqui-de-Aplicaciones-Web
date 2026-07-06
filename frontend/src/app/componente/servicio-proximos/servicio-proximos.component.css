@@ -1,0 +1,101 @@
+.proximos-wrapper {
+  padding: 28px 124px 56px;
+}
+
+.titulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.titulo-seccion mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #1976d2;
+}
+
+.titulo-seccion h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.titulo-seccion p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.estado-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 12px;
+  color: #aaa;
+}
+
+.estado-centro mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+/* Grid de cards */
+.grid-recordatorios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* Variantes de urgencia */
+.card-recordatorio {
+  border-left: 5px solid #1976d2;
+  transition: box-shadow 0.2s;
+}
+
+.card-recordatorio:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.card-recordatorio.urgente  { border-left-color: #d32f2f; }
+.card-recordatorio.pronto   { border-left-color: #f57c00; }
+.card-recordatorio.normal   { border-left-color: #388e3c; }
+
+.icono-alerta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.urgente .icono-alerta  { background: #ffebee; color: #d32f2f; }
+.pronto  .icono-alerta  { background: #fff3e0; color: #f57c00; }
+
+/* Chips */
+.chip-urgente { background: #d32f2f !important; color: white !important; }
+.chip-pronto  { background: #f57c00 !important; color: white !important; }
+.chip-normal  { background: #388e3c !important; color: white !important; }
+
+/* Filas de info */
+.info-fila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.ic {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #666;
+  flex-shrink: 0;
+}

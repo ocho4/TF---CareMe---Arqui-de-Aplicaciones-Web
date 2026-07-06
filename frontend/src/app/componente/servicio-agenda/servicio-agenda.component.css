@@ -1,0 +1,220 @@
+/* ── HERO ─────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 40px 124px 32px;
+}
+
+.hero-inner {
+  /* sin restricción de ancho */
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef0ff;
+  color: #3D44DD;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.hero-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.hero-titulo {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: 0.93rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── CONTENIDO ─────────────────────────────────────────── */
+.contenido {
+  padding: 28px 124px 56px;
+}
+
+/* ── FILTRO ────────────────────────────────────────────── */
+.filtro-card {
+  background: #fff;
+  border: 1px solid #e8edf8;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(61,68,221,0.06);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+
+.form-rango {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.campo-fecha {
+  flex: 1;
+  min-width: 160px;
+}
+
+.btn-consultar {
+  background: #3D44DD !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  height: 40px;
+  white-space: nowrap;
+}
+
+/* ── GRID DE DÍAS ──────────────────────────────────────── */
+.grid-semana {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── COLUMNA DÍA ───────────────────────────────────────── */
+.columna-dia {
+  background: #fff;
+  border: 1px solid #e8edf8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(61,68,221,0.04);
+  overflow: hidden;
+}
+
+.columna-dia.hoy {
+  border-color: #3D44DD;
+  box-shadow: 0 2px 16px rgba(61,68,221,0.14);
+}
+
+.cabecera-dia {
+  background: #f8faff;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8edf8;
+}
+
+.columna-dia.hoy .cabecera-dia {
+  background: #3D44DD;
+  border-bottom-color: #3338cc;
+}
+
+.etiqueta-dia {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.02em;
+}
+
+.columna-dia.hoy .etiqueta-dia { color: #fff; }
+
+.chip-hoy {
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* ── DÍA VACÍO ─────────────────────────────────────────── */
+.dia-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  gap: 4px;
+}
+
+.dia-vacio mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+/* ── LISTA DE EVENTOS ──────────────────────────────────── */
+.eventos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+/* ── CARD EVENTO ───────────────────────────────────────── */
+.card-evento {
+  background: #f8faff;
+  border: 1px solid #e8edf8;
+  border-left: 3px solid #3D44DD;
+  border-radius: 8px;
+  padding: 10px 10px 6px;
+}
+
+.evento-hora {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #3D44DD;
+  margin-bottom: 5px;
+}
+
+.evento-persona,
+.evento-costo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: #475569;
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.ic {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.evento-acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-chat-evento {
+  color: #3D44DD !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+}
+
+.btn-chat-evento mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero { padding: 28px 16px 24px; }
+  .contenido { padding: 20px 16px 40px; }
+  .hero-titulo { font-size: 1.6rem; }
+  .grid-semana { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}

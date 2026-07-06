@@ -1,0 +1,109 @@
+<mat-toolbar color="primary">
+  <div class="nav-inner">
+  <img src="https://webdesignfyp.com/wp-content/uploads/2026/06/CareMe-logo-header.png" alt="CareMe" class="logo-navbar" />
+  <span class="spacer"></span>
+
+  @if (usuario$ | async; as usuario) {
+
+    @if (usuario.rol === 'admin') {
+      <!-- Navbar admin: solo panel de administración -->
+      <a mat-button routerLink="/admin" routerLinkActive="nav-activo">
+        <mat-icon>admin_panel_settings</mat-icon> Panel Admin
+      </a>
+    } @else {
+      <a mat-button routerLink="/dashboard" routerLinkActive="nav-activo">
+        <mat-icon>home</mat-icon> Inicio
+      </a>
+
+      @if (usuario.rol === 'familiar') {
+        <a mat-button routerLink="/buscar"     routerLinkActive="nav-activo">Buscar Cuidadores</a>
+        <a mat-button routerLink="/cotizacion" routerLinkActive="nav-activo">Cotizar</a>
+        <a mat-button routerLink="/pacientes"  routerLinkActive="nav-activo">Mis Familiares</a>
+        <a mat-button routerLink="/mis-pagos"  routerLinkActive="nav-activo">
+          <mat-icon>receipt_long</mat-icon> Mis Pagos
+        </a>
+        <a mat-button routerLink="/favoritos"  routerLinkActive="nav-activo">
+          <mat-icon>favorite</mat-icon> Favoritos
+        </a>
+      }
+
+      @if (usuario.rol === 'cuidador') {
+        <a mat-button routerLink="/pendientes" routerLinkActive="nav-activo">Solicitudes Pendientes</a>
+      }
+
+      <a mat-button routerLink="/mis-servicios" routerLinkActive="nav-activo">Mis Servicios</a>
+      <a mat-button routerLink="/agenda"        routerLinkActive="nav-activo">Calendario</a>
+    }
+
+    <!-- Campana de notificaciones -->
+    @if (usuario.rol === 'cuidador' || usuario.rol === 'familiar') {
+      <button mat-icon-button [matMenuTriggerFor]="menuNotif"
+              (menuOpened)="cargarNotificaciones(usuario)"
+              class="btn-campana"
+              [attr.aria-label]="'Notificaciones: ' + totalNotificaciones">
+        <mat-icon
+          [matBadge]="totalNotificaciones > 0 ? totalNotificaciones : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
+          notifications
+        </mat-icon>
+      </button>
+
+      <mat-menu #menuNotif="matMenu" class="notif-menu">
+        <div class="notif-header" (click)="$event.stopPropagation()">
+          <span class="notif-titulo">Notificaciones</span>
+          @if (totalNotificaciones > 0) {
+            <span class="notif-badge-header">{{ totalNotificaciones }}</span>
+          }
+        </div>
+        <mat-divider />
+
+        @if (notificaciones.length === 0) {
+          <div class="notif-vacio" (click)="$event.stopPropagation()">
+            <mat-icon>check_circle</mat-icon>
+            <span>Todo al día</span>
+          </div>
+        }
+
+        @for (n of notificaciones; track n.tipo) {
+          <button mat-menu-item (click)="navegarNotificacion(n.ruta)" class="notif-item">
+            <div class="notif-fila">
+              <div class="notif-icono-wrap" [class]="'notif-icono-' + n.tipo">
+                <mat-icon>{{ iconosPorTipo[n.tipo] }}</mat-icon>
+              </div>
+              <div class="notif-texto">
+                <span class="notif-item-titulo">{{ n.titulo }}</span>
+                <span class="notif-item-desc">{{ n.descripcion }}</span>
+              </div>
+              @if (n.cantidad > 1) {
+                <span class="notif-count">{{ n.cantidad }}</span>
+              }
+            </div>
+          </button>
+        }
+      </mat-menu>
+    }
+
+    <a mat-button routerLink="{{ usuario.rol === 'admin' ? '/admin' : '/perfil' }}"
+       routerLinkActive="nav-activo" class="usuario-nombre">
+      @if (usuario.fotoUrl) {
+        <img [src]="usuario.fotoUrl" alt="Foto" class="nav-avatar" />
+      } @else {
+        <mat-icon>account_circle</mat-icon>
+      }
+      {{ usuario.nombres }} · {{ usuario.rol }}
+    </a>
+    <button mat-button (click)="cerrarSesion()">
+      <mat-icon>logout</mat-icon> Salir
+    </button>
+
+  } @else {
+    <a mat-button routerLink="/registro" routerLinkActive="nav-activo">Registrarse</a>
+    <a mat-button routerLink="/login"    routerLinkActive="nav-activo">Iniciar sesión</a>
+  }
+  </div>
+</mat-toolbar>
+
+<div class="contenido">
+  <router-outlet />
+</div>

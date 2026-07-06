@@ -1,0 +1,235 @@
+/* ── HERO ─────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 40px 124px 32px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef0ff;
+  color: #3D44DD;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.hero-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+.hero-titulo {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: 0.93rem;
+  color: #64748b;
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+/* ── CONTENIDO ─────────────────────────────────────────── */
+.contenido {
+  padding: 28px 124px 56px;
+}
+
+/* ── TABLA CARD ────────────────────────────────────────── */
+.tabla-card {
+  background: #fff;
+  border: 1px solid #e8edf8;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(61,68,221,0.06);
+  overflow: hidden;
+}
+
+.tabla-contenedor { overflow-x: auto; }
+
+.tabla-pendientes { width: 100%; }
+
+/* Cabecera */
+.tabla-pendientes th.mat-mdc-header-cell {
+  background: #f8faff;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #e8edf8 !important;
+  padding: 12px 14px;
+  white-space: nowrap;
+}
+
+/* Filas */
+.tabla-pendientes td.mat-mdc-cell {
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9 !important;
+  vertical-align: middle;
+}
+
+.fila-pendiente:hover td.mat-mdc-cell {
+  background: #f8faff;
+}
+
+.col-id { width: 60px; }
+
+/* ── ID BADGE ──────────────────────────────────────────── */
+.id-badge {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+/* ── CELDA PERSONA ─────────────────────────────────────── */
+.persona-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ── CELDA FECHA ───────────────────────────────────────── */
+.fecha-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.3;
+}
+
+.fecha-hora { font-size: 0.75rem; color: #94a3b8; }
+
+/* ── TIPO CHIP ─────────────────────────────────────────── */
+.tipo-chip {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* ── CELDA COSTO ───────────────────────────────────────── */
+.costo {
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+/* ── BOTONES ACCIÓN ────────────────────────────────────── */
+.acciones-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.btn-accion {
+  font-size: 0.78rem !important;
+  border-radius: 8px !important;
+  height: 32px;
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+.btn-accion mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+}
+
+.btn-confirmar {
+  border-color: #16a34a !important;
+  color: #16a34a !important;
+}
+.btn-confirmar:hover { background: #f0fdf4 !important; }
+
+.btn-rechazar {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+.btn-rechazar:hover { background: #fef2f2 !important; }
+
+/* ── ESTADO VACÍO ──────────────────────────────────────── */
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 20px;
+  text-align: center;
+}
+
+.vacio-icono {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vacio-icono mat-icon { font-size: 32px; width: 32px; height: 32px; color: #94a3b8; }
+
+.estado-vacio h3 {
+  font-family: 'Zilla Slab', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.estado-vacio p { font-size: 0.875rem; color: #64748b; margin: 0; max-width: 480px; }
+
+/* ── PAGINADOR ─────────────────────────────────────────── */
+.paginador-wrapper {
+  border-top: 1px solid #f1f5f9;
+  padding: 4px 8px;
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero { padding: 28px 16px 24px; }
+  .contenido { padding: 20px 16px 40px; }
+  .hero-titulo { font-size: 1.6rem; }
+  .acciones-cell { flex-direction: column; gap: 4px; }
+}

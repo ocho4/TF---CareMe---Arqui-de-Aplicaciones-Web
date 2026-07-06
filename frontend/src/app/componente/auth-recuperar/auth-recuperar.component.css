@@ -1,0 +1,263 @@
+/* ── Escapar del contenedor global ───────────────────── */
+:host {
+  display: block;
+  position: fixed;
+  top: 11vh;
+  left: 0;
+  width: 100vw;
+  height: 89vh;
+  z-index: 0;
+}
+
+/* ── Layout split-screen ─────────────────────────────── */
+.page-split {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Panel izquierdo ──────────────────────────────────── */
+.panel-form {
+  width: 50%;
+  flex-shrink: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 40px;
+  overflow-y: auto;
+}
+
+.form-inner {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Branding ─────────────────────────────────────────── */
+.branding {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.logo {
+  height: 56px;
+  margin: 0 auto 16px auto;
+  display: block;
+}
+
+.titulo {
+  margin: 0 0 5px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3D44DD;
+  font-family: 'Zilla Slab', serif;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.subtitulo {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #405057;
+  line-height: 1.45;
+}
+
+/* ── Campos ───────────────────────────────────────────── */
+.campo {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.field-icon {
+  color: #9ca3af;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+/* ── Separador ó ──────────────────────────────────────── */
+.separador-o {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.linea {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.texto-o {
+  flex-shrink: 0;
+}
+
+/* ── Token info box ───────────────────────────────────── */
+.token-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #eef0ff;
+  border-left: 3px solid #3D44DD;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #2d33b0;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.token-icon {
+  color: #3D44DD;
+  flex-shrink: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+/* ── Errores ──────────────────────────────────────────── */
+.error-grupo {
+  color: #dc2626;
+  font-size: 12px;
+  margin: -4px 0 8px 0;
+}
+
+/* ── Botón principal ──────────────────────────────────── */
+.btn-accion {
+  width: 100%;
+  height: 48px;
+  background: #3D44DD;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 14px rgba(61, 68, 221, 0.30);
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+.btn-accion:hover:not(:disabled) {
+  background: #2f35bb;
+  box-shadow: 0 4px 22px rgba(61, 68, 221, 0.40);
+  transform: translateY(-1px);
+}
+
+.btn-accion:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-accion:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Variante flex (dentro de acciones-doble) */
+.btn-accion--flex {
+  flex: 1;
+  width: auto;
+  margin-top: 0;
+}
+
+/* ── Botón secundario (Atrás) ─────────────────────────── */
+.btn-secundario {
+  height: 48px;
+  padding: 0 20px;
+  background: transparent;
+  color: #3D44DD;
+  border: 1.5px solid #3D44DD;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.btn-secundario:hover {
+  background: #eef0ff;
+}
+
+/* ── Acciones dobles (Atrás + Restablecer) ───────────── */
+.acciones-doble {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Footer ───────────────────────────────────────────── */
+.footer-texto {
+  margin: 24px 0 0 0;
+  text-align: center;
+}
+
+.link-accion {
+  color: #3D44DD;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.15s;
+}
+
+.link-accion:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.link-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Panel derecho: imagen ────────────────────────────── */
+.panel-imagen {
+  width: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.imagen-lateral {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .panel-imagen { display: none; }
+  .panel-form {
+    width: 100%;
+    padding: 28px 20px;
+  }
+}

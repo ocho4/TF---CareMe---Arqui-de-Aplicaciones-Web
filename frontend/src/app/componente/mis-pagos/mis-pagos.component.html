@@ -1,0 +1,163 @@
+<div class="pagos-wrapper">
+
+  <!-- Header -->
+  <div class="pagos-hero">
+    <h1 class="hero-titulo">
+      <mat-icon class="hero-icono">receipt_long</mat-icon>
+      Historial de pagos
+    </h1>
+    <p class="hero-subtitulo">Consulta todos tus movimientos y transacciones</p>
+  </div>
+
+  <!-- Tarjeta resumen -->
+  @if (!cargando) {
+    <div class="resumen-cards">
+      <mat-card class="stat-card">
+        <div class="stat-icono bg-azul"><mat-icon>receipt</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-numero">{{ dataSource.data.length }}</span>
+          <span class="stat-label">Total de transacciones</span>
+        </div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <div class="stat-icono bg-verde"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-numero">{{ pagosCompletados }}</span>
+          <span class="stat-label">Pagos completados</span>
+        </div>
+      </mat-card>
+      <mat-card class="stat-card">
+        <div class="stat-icono bg-morado"><mat-icon>payments</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-numero">S/ {{ totalGastado | number: '1.2-2' }}</span>
+          <span class="stat-label">{{ esFamiliar ? 'Total gastado' : 'Total recibido' }}</span>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Graficos -->
+  @if (!cargando && hayDatosGrafico) {
+    <div class="graficos-grid">
+      <mat-card class="grafico-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="icono-titulo">bar_chart</mat-icon>
+            {{ esFamiliar ? 'Gasto mensual' : 'Ingreso mensual' }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grafico-contenedor">
+            <canvas baseChart
+                    [data]="barChartData"
+                    [options]="barChartOptions"
+                    type="bar">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="grafico-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="icono-titulo">pie_chart</mat-icon>
+            Distribución por método de pago
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grafico-contenedor">
+            <canvas baseChart
+                    [data]="pieChartData"
+                    [options]="pieChartOptions"
+                    type="pie">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Tabla -->
+  <mat-card class="tabla-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="icono-titulo">table_chart</mat-icon>
+        Movimientos
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      @if (cargando) {
+        <div class="spinner-wrap">
+          <mat-spinner diameter="48" />
+          <p>Cargando historial...</p>
+        </div>
+      } @else if (dataSource.data.length === 0) {
+        <div class="sin-datos">
+          <mat-icon>receipt_long</mat-icon>
+          <p>Aún no tienes movimientos registrados.</p>
+        </div>
+      } @else {
+        <div class="tabla-scroll">
+          <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z0 tabla-pagos">
+
+            <!-- ID -->
+            <ng-container matColumnDef="idPago">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+              <td mat-cell *matCellDef="let p">{{ p.idPago }}</td>
+            </ng-container>
+
+            <!-- Fecha -->
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+              <td mat-cell *matCellDef="let p">{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </ng-container>
+
+            <!-- Contraparte -->
+            <ng-container matColumnDef="contraparte">
+              <th mat-header-cell *matHeaderCellDef>{{ esFamiliar ? 'Cuidador' : 'Familiar' }}</th>
+              <td mat-cell *matCellDef="let p">{{ nombreContraparte(p) }}</td>
+            </ng-container>
+
+            <!-- Método de pago -->
+            <ng-container matColumnDef="metodo">
+              <th mat-header-cell *matHeaderCellDef>Método</th>
+              <td mat-cell *matCellDef="let p">
+                <div class="metodo-chip">
+                  <mat-icon class="icono-metodo">
+                    {{ metodoDePago(p) === 'Yape' ? 'phone_android' : 'credit_card' }}
+                  </mat-icon>
+                  <span>{{ metodoDePago(p) }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Monto -->
+            <ng-container matColumnDef="monto">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Monto</th>
+              <td mat-cell *matCellDef="let p" class="monto-celda">S/ {{ p.monto | number: '1.2-2' }}</td>
+            </ng-container>
+
+            <!-- Estado -->
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let p">
+                <div class="estado-badge" [class]="'estado-' + colorEstado(p.estadoPago)">
+                  <mat-icon class="icono-estado">{{ iconoEstado(p.estadoPago) }}</mat-icon>
+                  {{ p.estadoPago }}
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnas;" class="fila-pago"></tr>
+          </table>
+        </div>
+
+        <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons />
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

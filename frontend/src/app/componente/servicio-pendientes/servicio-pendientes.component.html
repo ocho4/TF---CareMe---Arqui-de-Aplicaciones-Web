@@ -1,0 +1,144 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">
+      <mat-icon>pending_actions</mat-icon>
+      Cuidador · Solicitudes
+    </span>
+    <h1 class="hero-titulo">Solicitudes Pendientes</h1>
+    <p class="hero-sub">
+      Revisa las solicitudes de servicio que han llegado a tu perfil. Acepta o rechaza
+      cada una antes de que el familiar asigne a otro cuidador.
+    </p>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<main class="contenido">
+
+  <div class="tabla-card">
+    <div class="tabla-contenedor">
+      <table mat-table [dataSource]="dataSource" matSort class="tabla-pendientes">
+
+        <!-- # -->
+        <ng-container matColumnDef="idServicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="col-id">#</th>
+          <td mat-cell *matCellDef="let s" class="col-id">
+            <span class="id-badge">#{{ s.idServicio }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Familiar -->
+        <ng-container matColumnDef="familiar">
+          <th mat-header-cell *matHeaderCellDef>Familiar</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="persona-cell">
+              <div class="avatar-mini" [style.background]="colorPersona(s.familiar?.usuario?.nombres)">
+                @if (s.familiar?.usuario?.fotoUrl) {
+                  <img [src]="s.familiar.usuario.fotoUrl" class="avatar-img"
+                       (error)="$any($event.target).style.display='none'" />
+                } @else {
+                  {{ iniciales(s.familiar?.usuario?.nombres, s.familiar?.usuario?.apellidos) }}
+                }
+              </div>
+              <span>{{ s.familiar?.usuario?.nombres }} {{ s.familiar?.usuario?.apellidos }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Paciente -->
+        <ng-container matColumnDef="paciente">
+          <th mat-header-cell *matHeaderCellDef>Paciente</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="persona-cell">
+              <div class="avatar-mini" [style.background]="colorPersona(s.paciente?.usuario?.nombres)">
+                @if (s.paciente?.usuario?.fotoUrl) {
+                  <img [src]="s.paciente.usuario.fotoUrl" class="avatar-img"
+                       (error)="$any($event.target).style.display='none'" />
+                } @else {
+                  {{ iniciales(s.paciente?.usuario?.nombres, s.paciente?.usuario?.apellidos) }}
+                }
+              </div>
+              <span>{{ s.paciente?.usuario?.nombres }} {{ s.paciente?.usuario?.apellidos }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fecha inicio -->
+        <ng-container matColumnDef="fechaInicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Inicio</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="fecha-cell">
+              <span>{{ s.fechaInicio | date: 'dd/MM/yyyy' }}</span>
+              <span class="fecha-hora">{{ s.fechaInicio | date: 'HH:mm' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fecha fin -->
+        <ng-container matColumnDef="fechaFin">
+          <th mat-header-cell *matHeaderCellDef>Fin</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="fecha-cell">
+              <span>{{ s.fechaFin | date: 'dd/MM/yyyy' }}</span>
+              <span class="fecha-hora">{{ s.fechaFin | date: 'HH:mm' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Tipo -->
+        <ng-container matColumnDef="tipoServicio">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="tipo-chip">{{ s.tipoServicio ?? '—' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Costo -->
+        <ng-container matColumnDef="costoTotal">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Costo</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="costo">S/ {{ s.costoTotal | number: '1.2-2' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="acciones-cell">
+              <button mat-stroked-button class="btn-accion btn-confirmar"
+                      (click)="confirmar(s.idServicio)"
+                      matTooltip="Aceptar solicitud">
+                <mat-icon>check_circle</mat-icon> Aceptar
+              </button>
+              <button mat-stroked-button class="btn-accion btn-rechazar"
+                      (click)="confirmarRechazo(s.idServicio)"
+                      matTooltip="Rechazar solicitud">
+                <mat-icon>cancel</mat-icon> Rechazar
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas" class="fila-pendiente"></tr>
+
+        <tr class="sin-datos-fila" *matNoDataRow>
+          <td [attr.colspan]="columnas.length">
+            <div class="estado-vacio">
+              <div class="vacio-icono"><mat-icon>inbox</mat-icon></div>
+              <h3>Sin solicitudes pendientes</h3>
+              <p>Cuando un familiar te solicite un servicio, aparecerá aquí para que puedas aceptarlo o rechazarlo.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="paginador-wrapper">
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons />
+    </div>
+  </div>
+
+</main>

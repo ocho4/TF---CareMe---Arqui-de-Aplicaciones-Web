@@ -1,0 +1,81 @@
+<div class="chat-wrapper">
+  <mat-card class="card-chat">
+
+    <!-- Cabecera -->
+    <mat-card-header class="chat-header">
+      @if (otroFotoUrl) {
+        <img mat-card-avatar [src]="otroFotoUrl" [alt]="otroNombre" class="avatar-foto"
+             (error)="otroFotoUrl = null" />
+      } @else {
+        <div mat-card-avatar class="avatar-inicial">
+          {{ otroNombre ? otroNombre.charAt(0).toUpperCase() : '?' }}
+        </div>
+      }
+      <mat-card-title>{{ otroNombre || ('Servicio #' + idServicio) }}</mat-card-title>
+      <mat-card-subtitle>
+        Servicio #{{ idServicio }} ·
+        {{ usuarioActual?.rol === 'cuidador' ? 'Familiar' : 'Cuidador' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider />
+
+    <!-- Área de mensajes -->
+    <mat-card-content class="chat-body">
+      @if (cargando) {
+        <div class="estado-centro">
+          <mat-icon>hourglass_top</mat-icon>
+          <p>Cargando mensajes...</p>
+        </div>
+      } @else if (mensajes.length === 0) {
+        <div class="estado-centro">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <p>Aún no hay mensajes. ¡Sé el primero en escribir!</p>
+        </div>
+      } @else {
+        <div class="mensajes-lista" #mensajesContainer>
+          @for (m of mensajes; track m.idMensaje) {
+            <div class="mensaje-fila" [class.mio]="esMio(m)">
+              <div class="burbuja" [class.burbuja-mia]="esMio(m)" [class.burbuja-otro]="!esMio(m)">
+                @if (!esMio(m)) {
+                  <span class="remitente-nombre">
+                    {{ m.remitente?.nombres }} {{ m.remitente?.apellidos }}
+                  </span>
+                }
+                <p class="contenido">{{ m.contenido }}</p>
+                <span class="hora">
+                  {{ m.fechaEnvio | date: 'HH:mm' }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+
+    <mat-divider />
+
+    <!-- Input de envío -->
+    <mat-card-actions class="chat-footer">
+      <mat-form-field appearance="outline" class="input-mensaje">
+        <mat-label>Escribe un mensaje...</mat-label>
+        <input
+          matInput
+          [formControl]="inputMensaje"
+          (keyup.enter)="enviar()"
+          placeholder="Escribe aquí y presiona Enter o el botón enviar"
+        />
+      </mat-form-field>
+      <button
+        mat-fab
+        color="primary"
+        class="btn-enviar"
+        [disabled]="enviando || !inputMensaje.value?.trim()"
+        (click)="enviar()"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-card-actions>
+
+  </mat-card>
+</div>

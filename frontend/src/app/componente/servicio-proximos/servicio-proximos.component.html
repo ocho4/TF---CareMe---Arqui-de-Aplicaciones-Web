@@ -1,0 +1,90 @@
+<div class="proximos-wrapper">
+
+  <div class="titulo-seccion">
+    <mat-icon>notifications_active</mat-icon>
+    <div>
+      <h2>Recordatorios de servicio</h2>
+      <p>Servicios confirmados que inician en las próximas 24 horas</p>
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="estado-centro">
+      <mat-icon>hourglass_top</mat-icon>
+      <p>Cargando recordatorios...</p>
+    </div>
+  } @else if (proximos.length === 0) {
+    <div class="estado-centro">
+      <mat-icon>event_available</mat-icon>
+      <p>No tienes servicios confirmados en las próximas 24 horas.</p>
+      <a mat-stroked-button routerLink="/buscar" color="primary">Buscar cuidador</a>
+    </div>
+  } @else {
+    <div class="grid-recordatorios">
+      @for (s of proximos; track s.idServicio) {
+        <mat-card class="card-recordatorio" [class]="colorAlerta(horasRestantes(s.fechaInicio))">
+
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="icono-alerta">
+              {{ horasRestantes(s.fechaInicio) <= 2 ? 'alarm' : 'schedule' }}
+            </mat-icon>
+            <mat-card-title>Servicio #{{ s.idServicio }}</mat-card-title>
+            <mat-card-subtitle>
+              <mat-chip highlighted [class]="'chip-' + colorAlerta(horasRestantes(s.fechaInicio))">
+                En {{ horasRestantes(s.fechaInicio) }} hora{{ horasRestantes(s.fechaInicio) !== 1 ? 's' : '' }}
+              </mat-chip>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="info-fila">
+              <mat-icon class="ic">person</mat-icon>
+              <span><strong>Familiar:</strong>
+                {{ s.familiar?.usuario?.nombres }} {{ s.familiar?.usuario?.apellidos }}
+              </span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="ic">medical_services</mat-icon>
+              <span><strong>Cuidador:</strong>
+                {{ s.cuidador?.usuario?.nombres }} {{ s.cuidador?.usuario?.apellidos }}
+              </span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="ic">elderly</mat-icon>
+              <span><strong>Paciente:</strong>
+                {{ s.paciente?.usuario?.nombres }} {{ s.paciente?.usuario?.apellidos }}
+              </span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="ic">calendar_today</mat-icon>
+              <span>
+                {{ s.fechaInicio | date: 'dd/MM/yyyy HH:mm' }} →
+                {{ s.fechaFin   | date: 'HH:mm' }}
+              </span>
+            </div>
+            <div class="info-fila">
+              <mat-icon class="ic">payments</mat-icon>
+              <span>S/ {{ s.costoTotal | number: '1.2-2' }}</span>
+            </div>
+          </mat-card-content>
+
+          <mat-divider />
+
+          <mat-card-actions>
+            <a mat-button color="primary" [routerLink]="['/chat', s.idServicio]">
+              <mat-icon>chat</mat-icon> Chatear
+            </a>
+            <a mat-button [routerLink]="['/seguimiento', s.idServicio]">
+              <mat-icon>checklist</mat-icon> Seguimiento
+            </a>
+            <button mat-button color="warn" (click)="abrirCancelacion(s)">
+              <mat-icon>cancel</mat-icon> Cancelar
+            </button>
+          </mat-card-actions>
+
+        </mat-card>
+      }
+    </div>
+  }
+
+</div>

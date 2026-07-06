@@ -1,0 +1,176 @@
+<div class="dashboard">
+
+  <!-- Cabecera de bienvenida -->
+  <div class="bienvenida">
+    <div class="bienvenida-texto">
+      <h1>{{ saludoHora }}, <span class="nombre-usuario">{{ usuario?.nombres }}</span> 👋</h1>
+      <p class="rol-badge">
+        <mat-icon class="rol-icon">{{ esFamiliar ? 'family_restroom' : 'medical_services' }}</mat-icon>
+        {{ esFamiliar ? 'Familiar / Contratante' : 'Cuidador profesional' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Tarjetas de estadísticas -->
+  <div class="stats-grid">
+
+    <mat-card class="stat-card stat-azul">
+      <mat-card-content>
+        <div class="stat-contenido">
+          <div>
+            <p class="stat-label">Total de servicios</p>
+            <p class="stat-valor">{{ totalServicios }}</p>
+          </div>
+          <mat-icon class="stat-icono">medical_services</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-verde">
+      <mat-card-content>
+        <div class="stat-contenido">
+          <div>
+            <p class="stat-label">Servicios completados</p>
+            <p class="stat-valor">{{ serviciosCompletados }}</p>
+          </div>
+          <mat-icon class="stat-icono">verified</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (esFamiliar) {
+      <mat-card class="stat-card stat-naranja">
+        <mat-card-content>
+          <div class="stat-contenido">
+            <div>
+              <p class="stat-label">Gasto total</p>
+              <p class="stat-valor">S/ {{ gastoTotal | number: '1.2-2' }}</p>
+            </div>
+            <mat-icon class="stat-icono">payments</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (esCuidador) {
+      <mat-card class="stat-card stat-naranja">
+        <mat-card-content>
+          <div class="stat-contenido">
+            <div>
+              <p class="stat-label">Solicitudes pendientes</p>
+              <p class="stat-valor">{{ solicitudesPendientes }}</p>
+            </div>
+            <mat-icon class="stat-icono">pending_actions</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="contenido-principal">
+
+    <!-- Próximo servicio -->
+    <mat-card class="proximo-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="icono-header">event</mat-icon>
+        <mat-card-title>Próximo servicio</mat-card-title>
+        <mat-card-subtitle>Servicios confirmados en las próximas 24 horas</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (cargando) {
+          <p class="cargando">Cargando...</p>
+        } @else if (proximoServicio) {
+          <div class="proximo-detalle">
+            <div class="proximo-fila">
+              <mat-icon>person</mat-icon>
+              <span><strong>Cuidador:</strong>
+                {{ proximoServicio.cuidador?.usuario?.['nombres'] }}
+                {{ proximoServicio.cuidador?.usuario?.['apellidos'] }}
+              </span>
+            </div>
+            <div class="proximo-fila">
+              <mat-icon>elderly</mat-icon>
+              <span><strong>Paciente:</strong>
+                {{ proximoServicio.paciente?.usuario?.['nombres'] }}
+                {{ proximoServicio.paciente?.usuario?.['apellidos'] }}
+              </span>
+            </div>
+            <div class="proximo-fila">
+              <mat-icon>schedule</mat-icon>
+              <span><strong>Inicio:</strong> {{ proximoServicio.fechaInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="proximo-fila">
+              <mat-icon>payments</mat-icon>
+              <span><strong>Costo:</strong> S/ {{ proximoServicio.costoTotal | number: '1.2-2' }}</span>
+            </div>
+            <mat-chip color="primary" highlighted class="chip-confirmado">CONFIRMADO</mat-chip>
+          </div>
+        } @else {
+          <div class="sin-proximo">
+            <mat-icon>event_available</mat-icon>
+            <p>No tienes servicios programados para las próximas 24 horas.</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Acciones rápidas -->
+    <mat-card class="acciones-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="icono-header">dashboard</mat-icon>
+        <mat-card-title>Acciones rápidas</mat-card-title>
+        <mat-card-subtitle>¿Qué quieres hacer hoy?</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="acciones-grid">
+
+          @if (esFamiliar) {
+            <button mat-raised-button color="primary" routerLink="/buscar" class="accion-btn">
+              <mat-icon>search</mat-icon>
+              <span>Buscar cuidador</span>
+            </button>
+            <button mat-raised-button color="primary" routerLink="/cotizacion" class="accion-btn">
+              <mat-icon>calculate</mat-icon>
+              <span>Cotizar servicio</span>
+            </button>
+            <button mat-stroked-button routerLink="/mis-servicios" class="accion-btn">
+              <mat-icon>list_alt</mat-icon>
+              <span>Mis servicios</span>
+            </button>
+            <button mat-stroked-button routerLink="/agenda" class="accion-btn">
+              <mat-icon>calendar_month</mat-icon>
+              <span>Ver calendario</span>
+            </button>
+            <button mat-stroked-button routerLink="/pacientes" class="accion-btn">
+              <mat-icon>elderly</mat-icon>
+              <span>Mis pacientes</span>
+            </button>
+          }
+
+          @if (esCuidador) {
+            <button mat-raised-button color="primary" routerLink="/pendientes" class="accion-btn">
+              <mat-icon>pending_actions</mat-icon>
+              <span>Solicitudes pendientes</span>
+            </button>
+            <button mat-stroked-button routerLink="/mis-servicios" class="accion-btn">
+              <mat-icon>list_alt</mat-icon>
+              <span>Mis servicios</span>
+            </button>
+            <button mat-stroked-button routerLink="/agenda" class="accion-btn">
+              <mat-icon>calendar_month</mat-icon>
+              <span>Ver calendario</span>
+            </button>
+            <button mat-stroked-button routerLink="/recordatorios" class="accion-btn">
+              <mat-icon>notifications</mat-icon>
+              <span>Recordatorios</span>
+            </button>
+          }
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

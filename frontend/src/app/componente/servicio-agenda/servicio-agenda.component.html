@@ -1,0 +1,102 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">
+      <mat-icon>calendar_month</mat-icon>
+      Calendario de Servicios
+    </span>
+    <h1 class="hero-titulo">Calendario</h1>
+    <p class="hero-sub">Visualiza todos tus servicios confirmados por día en el rango de fechas que selecciones.</p>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<main class="contenido">
+
+  <!-- Selector de rango -->
+  <div class="filtro-card">
+    <form [formGroup]="form" (ngSubmit)="consultar()" class="form-rango">
+
+      <mat-form-field appearance="outline" class="campo-fecha">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerInicio" formControlName="fechaInicio" />
+        <mat-datepicker-toggle matSuffix [for]="pickerInicio" />
+        <mat-datepicker #pickerInicio />
+        @if (form.get('fechaInicio')?.hasError('required') && form.get('fechaInicio')?.touched) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo-fecha">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerFin" formControlName="fechaFin" />
+        <mat-datepicker-toggle matSuffix [for]="pickerFin" />
+        <mat-datepicker #pickerFin />
+        @if (form.get('fechaFin')?.hasError('required') && form.get('fechaFin')?.touched) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button class="btn-consultar" type="submit" [disabled]="cargando">
+        <mat-icon>search</mat-icon>
+        {{ cargando ? 'Consultando...' : 'Ver agenda' }}
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Calendario por días -->
+  @if (consultado) {
+    <div class="grid-semana">
+      @for (dia of dias; track dia.etiqueta) {
+        <div class="columna-dia" [class.hoy]="esHoy(dia.fecha)">
+
+          <div class="cabecera-dia">
+            <span class="etiqueta-dia">{{ dia.etiqueta }}</span>
+            @if (esHoy(dia.fecha)) {
+              <span class="chip-hoy">Hoy</span>
+            }
+          </div>
+
+          @if (dia.servicios.length === 0) {
+            <div class="dia-vacio">
+              <mat-icon>event_available</mat-icon>
+              <span>Libre</span>
+            </div>
+          } @else {
+            <div class="eventos-lista">
+              @for (s of dia.servicios; track s.idServicio) {
+                <div class="card-evento">
+                  <div class="evento-hora">
+                    <mat-icon class="ic">schedule</mat-icon>
+                    {{ s.fechaInicio | date:'HH:mm' }} – {{ s.fechaFin | date:'HH:mm' }}
+                  </div>
+                  <div class="evento-persona">
+                    <mat-icon class="ic">medical_services</mat-icon>
+                    <span>{{ s.cuidador?.usuario?.nombres }} {{ s.cuidador?.usuario?.apellidos }}</span>
+                  </div>
+                  <div class="evento-persona">
+                    <mat-icon class="ic">elderly</mat-icon>
+                    <span>{{ s.paciente?.usuario?.nombres }} {{ s.paciente?.usuario?.apellidos }}</span>
+                  </div>
+                  <div class="evento-costo">
+                    <mat-icon class="ic">payments</mat-icon>
+                    <span>S/ {{ s.costoTotal | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="evento-acciones">
+                    <a mat-icon-button class="btn-chat-evento" [routerLink]="['/chat', s.idServicio]"
+                       matTooltip="Abrir chat">
+                      <mat-icon>chat_bubble_outline</mat-icon>
+                    </a>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</main>

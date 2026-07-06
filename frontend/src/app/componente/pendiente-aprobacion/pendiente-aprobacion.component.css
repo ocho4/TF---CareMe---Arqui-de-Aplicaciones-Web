@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  position: fixed;
+  top: 11vh;
+  left: 0;
+  width: 100vw;
+  height: 89vh;
+  z-index: 0;
+}
+
+.page-split {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-form {
+  width: 50%;
+  flex-shrink: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 48px;
+  overflow-y: auto;
+}
+
+.form-inner {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.icono-estado {
+  margin-bottom: 20px;
+}
+
+.icono-reloj {
+  font-size: 72px !important;
+  width: 72px !important;
+  height: 72px !important;
+  color: #f59e0b;
+}
+
+.titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3D44DD;
+  font-family: 'Zilla Slab', serif;
+  margin: 0 0 12px 0;
+}
+
+.subtitulo {
+  color: #405057;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 28px 0;
+}
+
+.pasos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.paso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.paso-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.paso-activo {
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.paso-pendiente {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.btn-login {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.panel-imagen {
+  width: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.imagen-lateral {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .panel-imagen { display: none; }
+  .panel-form { width: 100%; padding: 24px 20px; }
+}

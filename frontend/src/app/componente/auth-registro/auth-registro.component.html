@@ -1,0 +1,131 @@
+<div class="page-split">
+
+  <!-- Panel izquierdo: formulario -->
+  <div class="panel-form">
+    <div class="form-inner">
+
+      <div class="branding">
+        <img src="https://webdesignfyp.com/wp-content/uploads/2026/06/Documento.png"
+             alt="CareMe" class="logo" />
+        <h1 class="titulo">Crea tu cuenta</h1>
+        <p class="subtitulo">Únete a CareMe y conecta con los mejores cuidadores</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="registrar()">
+
+        <div class="fila-doble">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <mat-icon matPrefix class="field-icon">badge</mat-icon>
+            <input matInput formControlName="nombres" placeholder="Ej: Juan Carlos" />
+            @if (form.get('nombres')?.hasError('required') && form.get('nombres')?.touched) {
+              <mat-error>El nombre es obligatorio</mat-error>
+            }
+            @if (form.get('nombres')?.hasError('minlength') && form.get('nombres')?.touched) {
+              <mat-error>Mínimo 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellidos</mat-label>
+            <mat-icon matPrefix class="field-icon">badge</mat-icon>
+            <input matInput formControlName="apellidos" placeholder="Ej: Pérez García" />
+            @if (form.get('apellidos')?.hasError('required') && form.get('apellidos')?.touched) {
+              <mat-error>El apellido es obligatorio</mat-error>
+            }
+            @if (form.get('apellidos')?.hasError('minlength') && form.get('apellidos')?.touched) {
+              <mat-error>Mínimo 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Correo electrónico</mat-label>
+          <mat-icon matPrefix class="field-icon">email</mat-icon>
+          <input matInput type="email" formControlName="email"
+                 placeholder="correo@ejemplo.com" />
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <mat-error>El correo es obligatorio</mat-error>
+          }
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Ingresa un correo válido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Teléfono</mat-label>
+          <mat-icon matPrefix class="field-icon">phone</mat-icon>
+          <input matInput type="tel" formControlName="telefono"
+                 placeholder="Ej: 987654321" />
+          @if (form.get('telefono')?.hasError('required') && form.get('telefono')?.touched) {
+            <mat-error>El teléfono es obligatorio</mat-error>
+          }
+          @if (form.get('telefono')?.hasError('pattern') && form.get('telefono')?.touched) {
+            <mat-error>Ingresa solo dígitos (9-15 caracteres)</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Contraseña</mat-label>
+          <mat-icon matPrefix class="field-icon">lock</mat-icon>
+          <input matInput [type]="ocultarPassword ? 'password' : 'text'"
+                 formControlName="password" placeholder="Mínimo 6 caracteres" />
+          <button mat-icon-button matSuffix type="button"
+                  (click)="ocultarPassword = !ocultarPassword">
+            <mat-icon>{{ ocultarPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>La contraseña es obligatoria</mat-error>
+          }
+          @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+            <mat-error>Mínimo 6 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo">
+          <mat-label>Rol en la plataforma</mat-label>
+          <mat-icon matPrefix class="field-icon">manage_accounts</mat-icon>
+          <mat-select formControlName="idTipo">
+            <mat-option [value]="1">Familiar / Contratante</mat-option>
+            <mat-option [value]="2">Cuidador profesional</mat-option>
+          </mat-select>
+          @if (form.get('idTipo')?.hasError('required') && form.get('idTipo')?.touched) {
+            <mat-error>Selecciona un rol para continuar</mat-error>
+          }
+        </mat-form-field>
+
+        @if (esCuidador) {
+          <mat-form-field appearance="outline" class="campo">
+            <mat-label>¿Por qué quieres ser cuidador en CareMe?</mat-label>
+            <mat-icon matPrefix class="field-icon">edit_note</mat-icon>
+            <textarea matInput formControlName="motivacion" rows="3"
+                      placeholder="Cuéntanos tu experiencia, motivación o cualidades que te hacen un buen cuidador..."></textarea>
+          </mat-form-field>
+          <div class="aviso-revision">
+            <mat-icon class="aviso-icon">info</mat-icon>
+            <span>Tu solicitud será revisada por el equipo de CareMe antes de activar tu cuenta.</span>
+          </div>
+        }
+
+        <button type="submit" class="btn-registrar" [disabled]="cargando">
+          <mat-icon class="btn-icon">{{ cargando ? 'hourglass_top' : 'how_to_reg' }}</mat-icon>
+          {{ cargando ? 'Registrando...' : 'Crear cuenta' }}
+        </button>
+
+      </form>
+
+      <p class="footer-texto">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="link-accion">Iniciar sesión</a>
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Panel derecho: imagen -->
+  <div class="panel-imagen">
+    <img src="https://webdesignfyp.com/wp-content/uploads/2026/06/happy-nurse-take-care-elderly-man-wheelchair-garden-nursing-home-scaled.jpg"
+         alt="CareMe" class="imagen-lateral" />
+  </div>
+
+</div>

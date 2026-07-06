@@ -1,0 +1,112 @@
+================================================================================
+  CAREME — DESPLIEGUE EN AWS PARA LA EXPOSICION
+================================================================================
+
+ARQUITECTURA ELEGIDA
+----------------------------------------
+Una sola instancia EC2 (t3.small, Ubuntu 22.04) corriendo 3 contenedores
+Docker via docker-compose:
+  - PostgreSQL (base de datos)
+  - Backend Spring Boot (careme)
+  - Nginx sirviendo el Angular compilado + reverse proxy hacia el backend
+
+Ventajas para este caso: barato, facil de levantar, y sobre todo facil de
+APAGAR por completo cuando termines la exposicion (terminar la instancia =
+dejar de pagar, no quedan recursos sueltos cobrando).
+
+
+PARTE 1 — LO QUE HACES TU (requiere tu sesion/cuenta, no lo puedo hacer yo)
+================================================================================
+
+1.1 Subir los dos proyectos a GitHub (si no lo hiciste ya)
+    - Backend:  C:\Users\USER\IdeaProjects\CaremevFinal\careme
+    - Frontend: C:\Users\USER\WebstormProjects\CareMe
+    (Pueden ser repos privados, solo que si son privados el clonado en el
+    servidor va a pedir autenticacion — si prefieres, hazlos publicos solo
+    por la duracion de la demo y los vuelves privados despues.)
+
+1.2 Instalar AWS CLI en tu maquina Windows
+    - Descarga el instalador oficial: https://awscli.amazonaws.com/AWSCLIV2.msi
+    - Instalalo (siguiente, siguiente, listo)
+    - Verifica en una terminal nueva: aws --version
+
+1.3 Crear una clave de acceso IAM (NO uses las credenciales root)
+    - Entra a la consola de AWS -> IAM -> Users -> tu usuario (o crea uno
+      nuevo con el permiso administrado "AmazonEC2FullAccess")
+    - Pestaña "Security credentials" -> "Create access key" -> caso de uso
+      "Command Line Interface (CLI)"
+    - Guarda el "Access key ID" y el "Secret access key" que te muestra
+      (el secreto solo se ve una vez)
+
+1.4 Configurar el CLI con esas credenciales
+    - En tu terminal: aws configure
+    - Pega el Access key ID, el Secret access key, la region (por ejemplo
+      us-east-1) y el formato de salida (json)
+    - Estas credenciales quedan SOLO en tu maquina, en un archivo local.
+      Yo nunca las veo ni las necesito ver.
+
+1.5 Avisame cuando termines estos 4 pasos. Yo verifico con un comando de
+    solo lectura (aws sts get-caller-identity) que quedo bien configurado,
+    y de ahi tomo el control de la parte de infraestructura (key pair,
+    grupo de seguridad, y crear la instancia EC2) via comandos.
+
+
+PARTE 2 — LO QUE HAGO YO (una vez tengas el CLI listo)
+================================================================================
+
+2.1 Crear un key pair nuevo para SSH (aws ec2 create-key-pair)
+2.2 Crear un security group que permita:
+      - Puerto 22 (SSH) — solo para administrar el servidor
+      - Puerto 80 (HTTP) — para que la app sea accesible desde el navegador
+2.3 Lanzar la instancia EC2 (t3.small, Ubuntu 22.04, con el script
+    deploy/ec2-user-data.sh que instala Docker automaticamente)
+2.4 Esperar a que la instancia este lista y conseguir su IP publica
+
+
+PARTE 3 — DESPLEGAR LA APP (por SSH, lo hacemos juntos)
+================================================================================
+
+3.1 Conectarte por SSH a la instancia:
+      ssh -i tu-key.pem ubuntu@<IP-PUBLICA>
+
+3.2 Clonar los dos repos, uno al lado del otro:
+      git clone <URL-DE-TU-REPO-BACKEND> careme
+      git clone <URL-DE-TU-REPO-FRONTEND> CareMe
+
+3.3 Crear el archivo .env dentro de careme/ (junto al docker-compose.yml):
+      cd careme
+      cp .env.example .env
+      nano .env
+    Y completar:
+      DB_PASSWORD=<una contraseña que tu elijas>
+      JWT_SECRET=I2JCmIBAIpQIJQ4/+qsJPxO4ahpLokbTyD9GDUUlWsCjabbnVowfr65qwFkKYoYqqBPEWTTpct3udFFsa/rWiw==
+      PUBLIC_HOST=<la IP publica de tu instancia>
+
+3.4 Levantar todo:
+      docker compose up -d --build
+
+3.5 Verificar que los 3 contenedores esten corriendo:
+      docker compose ps
+
+3.6 Abrir en el navegador: http://<IP-PUBLICA>
+    (el backend queda accesible internamente vía Nginx en /api, /swagger-ui,
+    etc. — no necesitas abrir el puerto 8080 al publico)
+
+
+PARTE 4 — DESPUES DE LA EXPOSICION (importante para no seguir pagando)
+================================================================================
+
+Cuando termines de usar la demo:
+  aws ec2 terminate-instances --instance-ids <ID-DE-LA-INSTANCIA>
+
+Esto borra la instancia por completo (y con ella, todo lo que corre dentro,
+incluida la base de datos). Si quieres conservar los datos antes de apagar,
+avisame y hacemos un respaldo rapido de la base de datos primero.
+
+================================================================================
+NOTA DE SEGURIDAD
+================================================================================
+El secreto JWT_SECRET generado arriba es NUEVO y distinto al que usas en tu
+entorno local — no lo reutilices en otro lado, y no lo subas a GitHub (el
+.env real esta en .gitignore, solo .env.example queda versionado).
+================================================================================

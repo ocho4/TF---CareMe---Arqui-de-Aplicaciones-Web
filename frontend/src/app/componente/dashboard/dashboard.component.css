@@ -1,0 +1,180 @@
+.dashboard {
+  padding: 28px 124px 56px;
+}
+
+/* Bienvenida */
+.bienvenida {
+  margin-bottom: 28px;
+}
+
+.bienvenida h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px;
+}
+
+.nombre-usuario {
+  color: #2563eb;
+}
+
+.rol-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 15px;
+  margin: 0;
+}
+
+.rol-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Grid de estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  border-radius: 12px !important;
+  border-left: 5px solid transparent;
+}
+
+.stat-azul   { border-left-color: #2563eb; }
+.stat-verde  { border-left-color: #059669; }
+.stat-naranja{ border-left-color: #d97706; }
+
+.stat-contenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 4px;
+}
+
+.stat-valor {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.stat-icono {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  opacity: 0.2;
+  color: #334155;
+}
+
+/* Contenido principal */
+.contenido-principal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 700px) {
+  .contenido-principal { grid-template-columns: 1fr; }
+}
+
+.proximo-card,
+.acciones-card {
+  border-radius: 12px !important;
+}
+
+.icono-header {
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 50%;
+  padding: 6px;
+  font-size: 22px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Próximo servicio */
+.proximo-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.proximo-fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.proximo-fila mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.chip-confirmado {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.sin-proximo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0;
+  color: #94a3b8;
+}
+
+.sin-proximo mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.cargando {
+  color: #94a3b8;
+  text-align: center;
+  padding: 32px 0;
+}
+
+/* Acciones rápidas */
+.acciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.accion-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 72px;
+  font-size: 12px;
+}
+
+.accion-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
