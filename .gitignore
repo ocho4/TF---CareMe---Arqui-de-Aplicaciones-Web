@@ -10,6 +10,7 @@ frontend/.angular/
 # ---------- Despliegue: nunca subir secretos reales ----------
 .env
 backend/.env
+MANUAL_OPERACIONES.txt
 
 # ---------- IDEs ----------
 .idea/
