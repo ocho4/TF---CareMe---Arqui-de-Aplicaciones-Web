@@ -27,7 +27,7 @@ A continuación, se detalla el equipo de ingeniería a cargo de la arquitectura,
 | Desarrollador / Integrante | Código de Estudiante | Especialidad / Rol Asignado |
 | :--- | :---: | :--- |
 | **Mattias Adrián Concha Ochoa** | `U202318269` | Ingeniería de Software / Backend & Systems Architecture |
-| **Carlos Fabrizio Lara Talla** | `U202114534` | Ingeniería de Software / Fullstack & Deployment DevOps |
+| **Carlos Fabrizio Lara Talla** | `U202114534` | Ingeniería de Sistemas / Fullstack & Deployment DevOps |
 
 ---
 
