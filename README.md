@@ -27,7 +27,7 @@
 | Integrante | Código | Rol |
 |---|---|---|
 | Carlos Fabrizio Lara Talla | U202114534 | Ingeniería de Sistemas |
-| Mattias Adrián Concha Ochoa | U202318269 | Ingeniería de Sistemas |
+| Mattias Adrián Concha Ochoa | U202318269 | Ingeniería de Software |
 
 ---
 
