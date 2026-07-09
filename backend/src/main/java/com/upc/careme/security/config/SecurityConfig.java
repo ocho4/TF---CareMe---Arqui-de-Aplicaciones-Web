@@ -18,6 +18,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -49,38 +56,63 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> {})
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/error"
-                ).permitAll()
-                .requestMatchers(HttpMethod.GET,
-                    "/api/cuidadores",
-                    "/api/cuidadores/*",
-                    "/api/cuidadores/buscar/**",
-                    "/api/condiciones-medicas",
-                    "/api/tipos-usuario"
-                ).permitAll()
-                .requestMatchers("/api/admin/**", "/api/usuarios/**", "/api/administradores/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) ->
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado"))
-                .accessDeniedHandler((req, res, e) ->
-                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Prohibido"))
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/error"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/cuidadores",
+                                "/api/cuidadores/*",
+                                "/api/cuidadores/buscar/**",
+                                "/api/condiciones-medicas",
+                                "/api/tipos-usuario"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**", "/api/usuarios/**", "/api/administradores/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            String jsonResponse = String.format(
+                                    "{\"timestamp\":\"%s\",\"status\":410,\"error\":\"No autorizado\",\"mensaje\":\"%s\",\"ruta\":\"%s\"}",
+                                    LocalDateTime.now(), e.getMessage(), req.getRequestURI());
+                            res.getWriter().write(jsonResponse);
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            String jsonResponse = String.format(
+                                    "{\"timestamp\":\"%s\",\"status\":403,\"error\":\"Acceso prohibido\",\"mensaje\":\"%s\",\"ruta\":\"%s\"}",
+                                    LocalDateTime.now(), e.getMessage(), req.getRequestURI());
+                            res.getWriter().write(jsonResponse);
+                        })
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
